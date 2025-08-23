@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Abuela Perla · Admin</title>
+
+  <!-- Tema + estilos base -->
+  <meta name="theme-color" content="#5A2EA6" />
+  <link href="styles.css" rel="stylesheet" />
+
+  <!-- Favicon / Icons -->
+  <link rel="icon" href="assets/ap-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="assets/ap-192.png" />
+
+  <!-- Manifest PWA de Admin -->
+  <link rel="manifest" href="manifest-admin.json" />
+
+  <!-- Ajustes visuales suaves para Admin -->
+  <style>
+    .ap-toolbar{
+      display:flex; align-items:center; gap:12px; justify-content:space-between;
+      background:#fff; border:1px solid #ececf3; border-radius:14px; padding:10px 12px;
+      box-shadow:0 6px 18px rgba(0,0,0,.04); margin-bottom:14px;
+    }
+    .ap-inline{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+    .ap-field span{display:block; font-size:12px; color:#667085; margin-bottom:6px}
+    .ap-head-actions{display:flex; gap:8px; flex-wrap:wrap}
+    .ap-helpbar{
+      display:flex; gap:10px; align-items:center; font-size:13px; color:#57606a;
+      background:#f7f7fd; border:1px dashed #dcdcf5; border-radius:10px; padding:8px 10px;
+      margin-bottom:12px;
+    }
+    .ap-sec h3{margin:0 0 10px 0}
+    .ap-table th, .ap-table td{ padding:10px 8px; border-bottom:1px solid #ececf3 }
+    .ap-table thead th{ position:sticky; top:0; background:#fafafe; z-index:1; }
+    .ap-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
+    @media (max-width:900px){ .ap-grid-2{ grid-template-columns:1fr } }
+    .ap-actions{ display:flex; gap:10px; flex-wrap:wrap }
+    .ap-badge{
+      display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px;
+      border:1px solid #ececf3; background:#fff; font-size:12px; color:#444;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="ap-header">
+    <div class="ap-wrap ap-brand">
+      <img src="assets/logo.png" class="ap-logo" alt="Abuela Perla" />
+      <div class="ap-headings">
+        <h1>Administración</h1>
+        <p class="ap-subtitle">Agregar/editar productos, visibilidad y catálogo</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="ap-wrap" style="margin-top:16px">
+    <!-- Toolbar -->
+    <div class="ap-toolbar">
+      <div class="ap-inline" style="flex:1">
+        <div class="ap-field" style="min-width:260px; max-width:360px; flex:1">
+          <span>Clave de administrador</span>
+          <input id="adminKey" type="password" placeholder="Ingresá tu clave" />
+        </div>
+        <span class="ap-badge">Hoja: <b style="margin-left:4px">Productos</b></span>
+      </div>
+      <div class="ap-head-actions">
+        <button id="btnLoad" class="ap-btn ap-primary">Cargar Productos</button>
+        <button id="btnUpdate" class="ap-btn ap-ghost" hidden>Actualizar</button>
+      </div>
+    </div>
+
+    <!-- Ayuda -->
+    <div class="ap-helpbar">
+      <span>Tip:</span>
+      <span>Usá “Cargar Productos” para traer el catálogo actual. Editá o creá uno nuevo abajo y tocá <b>Guardar</b>.</span>
+    </div>
+
+    <!-- Formulario Nuevo/Editar -->
+    <section class="ap-sec">
+      <h3>Nuevo / Editar producto</h3>
+      <div class="ap-grid-2">
+        <div class="ap-field">
+          <span>ID (vacío para crear)</span>
+          <input id="f_id" placeholder="(auto)" />
+        </div>
+        <div class="ap-field">
+          <span>Categoría</span>
+          <input id="f_cat" placeholder="Pizzas / Empanadas / ..." />
+        </div>
+      </div>
+
+      <div class="ap-grid-2">
+        <div class="ap-field">
+          <span>Nombre</span>
+          <input id="f_name" placeholder="Pizza Muzzarela" />
+        </div>
+        <div class="ap-field">
+          <span>Precio (si NO hay variantes)</span>
+          <input id="f_price" type="number" min="0" step="1" placeholder="10200" />
+        </div>
+      </div>
+
+      <div class="ap-grid-2">
+        <div class="ap-field">
+          <span>Variantes (JSON)</span>
+          <textarea id="f_variants" placeholder='[{"k":"Entera","price":10200},{"k":"Media","price":5200}]'></textarea>
+        </div>
+        <div class="ap-field">
+          <span>Visible</span>
+          <select id="f_visible">
+            <option value="true">TRUE</option>
+            <option value="false">FALSE</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ap-actions" style="margin-top:8px">
+        <button id="btnUpsert" class="ap-btn ap-primary">Guardar</button>
+        <button id="btnClearForm" class="ap-btn ap-ghost">Limpiar</button>
+      </div>
+
+      <div id="admAlert" class="ap-alert ap-hide" style="margin-top:8px"></div>
+    </section>
+
+    <!-- Listado -->
+    <section class="ap-sec">
+      <h3>Listado</h3>
+      <div style="overflow:auto; max-height: 62vh; border:1px solid #ececf3; border-radius:12px;">
+        <table id="tbl" class="ap-table" style="width:100%; border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="text-align:left">ID</th>
+              <th style="text-align:left">Cat</th>
+              <th style="text-align:left">Nombre</th>
+              <th style="text-align:right">Precio</th>
+              <th style="text-align:left">Variantes</th>
+              <th style="text-align:center">Visible</th>
+              <th style="text-align:center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- Scripts de Admin -->
+  <script src="admin.js"></script>
+
+  <!-- Service Worker + botón “Actualizar” (SKIP_WAITING) -->
+  <script>
+    (function(){
+      const btnUpdate = document.getElementById('btnUpdate');
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          const showBtn = () => { if (btnUpdate) btnUpdate.hidden = false; };
+
+          // Si ya hay un SW controlando y aparece uno nuevo
+          if (reg.waiting && navigator.serviceWorker.controller) showBtn();
+
+          reg.addEventListener('updatefound', () => {
+            const nw = reg.installing;
+            nw && nw.addEventListener('statechange', () => {
+              if (nw.state === 'installed' && navigator.serviceWorker.controller) showBtn();
+            });
+          });
+
+          btnUpdate?.addEventListener('click', async () => {
+            (await navigator.serviceWorker.getRegistration())?.waiting?.postMessage({ type: 'SKIP_WAITING' });
+          });
+
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.location.reload();
+          });
+        }).catch(console.error);
+      }
+    })();
+  </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+
+</body>
+</html>

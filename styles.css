@@ -1,0 +1,232 @@
+:root{
+  --violeta:#5A2EA6;
+  --violeta-2:#6f46c3;
+  --violeta-3:#8a6ee0;
+  --gris:#f6f6fb;
+  --borde:#ececf3;
+  --txt:#141414;
+  --error:#e53935;
+  --bg:#ffffff;
+  --glass: 12px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  color:var(--txt);
+  background:
+    radial-gradient(1200px 600px at 10% -20%, rgba(90,46,166,.08), transparent 60%),
+    radial-gradient(1000px 600px at 110% 10%, rgba(111,70,195,.08), transparent 60%),
+    #fff;
+  font-family: Inter, system-ui, Roboto, Arial, sans-serif;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+
+/* Layout util */
+.ap-wrap{max-width:1120px;margin:auto;padding:12px}
+
+/* Header */
+.ap-header{
+  position:sticky;top:0;z-index:20;background:rgba(255,255,255,.75);
+  backdrop-filter:saturate(1.3) blur(10px);
+  border-bottom:1px solid var(--borde);
+}
+.ap-brand{display:flex;align-items:center;gap:14px;padding-block:8px}
+.ap-logo{height:100px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,.08))}
+.ap-headings h1{
+  font-size:28px;margin:0 0 4px 0;color:var(--violeta);font-weight:800;letter-spacing:.2px;
+}
+.ap-subtitle{margin:0;color:#555;font-size:13px;line-height:1.4}
+
+/* Pills */
+.ap-pillbar{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:10px}
+.ap-pillbar button{
+  appearance:none;cursor:pointer;border-radius:999px;border:1px solid var(--borde);
+  padding:8px 14px;background:var(--gris);font-weight:600;transition:all .2s ease;
+}
+.ap-pillbar button:hover{transform:translateY(-1px)}
+.ap-pillbar .active{background:var(--violeta);color:#fff;border-color:var(--violeta)}
+
+/* Main */
+.ap-main{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:980px){.ap-main{grid-template-columns:2fr 1fr}}
+
+/* Grid catálogo */
+.ap-grid{
+  display:grid;gap:14px;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+}
+
+/* Card producto */
+.ap-card{
+  background:#fff;border:1px solid var(--borde);
+  border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;
+  box-shadow:0 5px 20px rgba(16,0,48,.06);
+  transition:box-shadow .2s ease, transform .2s ease;
+}
+.ap-card:hover{box-shadow:0 10px 28px rgba(16,0,48,.10);transform:translateY(-2px)}
+.ap-card h3{margin:0;font-size:15px;font-weight:700}
+.ap-price{font-weight:800}
+.ap-help{font-size:12px;color:#666;margin-top:-6px}
+
+/* Inputs */
+.ap-field{display:grid;gap:6px}
+select,textarea,input{
+  width:100%;padding:10px 12px;border:1px solid var(--borde);
+  border-radius:12px;background:#fff;font:inherit;
+}
+textarea{resize:vertical;min-height:84px}
+
+/* Botones y chips */
+.ap-btn{
+  cursor:pointer;border:0;border-radius:12px;padding:10px 14px;font-weight:700;
+  transition:transform .08s ease, box-shadow .2s ease;
+}
+.ap-btn:active{transform:translateY(1px)}
+.ap-primary{background:linear-gradient(180deg, var(--violeta), var(--violeta-2));color:#fff;box-shadow:0 6px 18px rgba(90,46,166,.25)}
+.ap-primary:hover{filter:saturate(1.05) brightness(1.02)}
+.ap-ghost{background:#fff;border:1px solid var(--borde)}
+.ap-chip{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid var(--borde);
+  padding:7px 12px;border-radius:999px;background:#fff;user-select:none
+}
+.ap-chip input{accent-color:var(--violeta)}
+
+/* Qty */
+.ap-qty{display:flex;align-items:center;gap:10px}
+.ap-qty .ap-num{min-width:24px;text-align:center;font-weight:800}
+.ap-qty .ap-ghost{padding:6px 10px}
+
+/* Carrito (glass) */
+.ap-cart{
+  position:sticky;top:96px;border:1px solid rgba(255,255,255,.6);
+  border-radius:18px;padding:16px;background:rgba(255,255,255,.75);
+  backdrop-filter:saturate(1.2) blur(10px);
+  box-shadow:0 10px 28px rgba(16,0,48,.08);
+}
+.ap-cart-title{margin:0 0 8px}
+.ap-cart-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ap-cart-list li{border:1px dashed var(--borde);border-radius:12px;padding:8px}
+
+.ap-line{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.ap-tot{border-top:1px solid var(--borde);margin-top:12px;padding-top:12px;display:grid;gap:8px}
+.ap-grand{font-size:18px;font-weight:800}
+
+.ap-sec{border-top:1px solid var(--borde);margin-top:14px;padding-top:14px;display:grid;gap:10px}
+.ap-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.ap-transfer{background:#f7f4ff;border:1px solid var(--violeta);padding:10px;border-radius:12px;font-size:14px}
+
+.ap-notes{min-height:90px}
+
+.ap-actions{display:flex;gap:10px;justify-content:space-between}
+
+/* Estados */
+.ap-hide{display:none}
+.ap-error{border-color:var(--error)!important;background:#fff8f8}
+.ap-alert{
+  border:1px solid var(--error);background:#fff2f2;color:#a40000;
+  border-radius:12px;padding:10px;font-size:14px;margin-top:6px
+}
+/* Ocultar logo solo en la tienda */
+.store .ap-logo { display: none !important; }
+
+/* Ajustes de header cuando no hay logo */
+.store .ap-brand { gap: 8px; }
+.store .ap-headings h1 { font-size: 24px; line-height: 1.2; }
+.store .ap-subtitle { margin-top: 2px; font-size: 13px; color: #666; }
+/* ===== Tienda sin logo: más aire en el header ===== */
+.store .ap-header .ap-brand{
+  padding-block: 22px;           /* más alto porque no hay logo */
+  justify-content: center;       /* centrado */
+}
+
+.store .ap-headings{
+  text-align: center;            /* centra título y subtítulo */
+}
+
+.store #mainTitle{
+  font-size: 28px;
+  line-height: 1.2;
+  margin: 0 0 8px;
+  letter-spacing: .2px;
+}
+
+.store .ap-subtitle{
+  font-size: 15px;
+  line-height: 1.45;
+  color: #555;
+  margin: 4px 0 2px;             /* separa del título */
+}
+
+/* La barra de categorías también con más aire y centrada */
+.store .ap-pillbar{
+  display: flex;                 /* por si no lo tiene */
+  justify-content: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  margin-top: 6px;               /* separa del header */
+  flex-wrap: wrap;
+}
+
+/* Un poco más grande en desktop */
+@media (min-width: 980px){
+  .store #mainTitle{ font-size: 32px; margin-bottom: 10px; }
+  .store .ap-subtitle{ font-size: 16px; }
+  .store .ap-header .ap-brand{ padding-block: 26px; }
+}
+/* --- Espaciado título vs categorías --- */
+.ap-header .ap-headings h1{
+  margin: 0 0 10px;      /* separa el h1 de la línea siguiente */
+  line-height: 1.25;
+}
+
+.ap-header .ap-subtitle{
+  margin: 0;             /* sin margen extra abajo del subtítulo */
+}
+
+.ap-pillbar{
+  margin-top: 22px;      /* ¡más aire antes de las categorías! */
+}
+
+/* Un poco más de espacio en pantallas grandes */
+@media (min-width: 992px){
+  .ap-pillbar{ margin-top: 28px; }
+}
+
+/* Si ocultaste el logo, dale aún más respiro */
+body.no-logo .ap-pillbar{
+  margin-top: 32px;
+}
+/* --- Promo bienvenida --- */
+.ap-promo-backdrop{
+  position:fixed; inset:0; display:none; place-items:center;
+  background:rgba(0,0,0,.5); z-index:9999;
+}
+.ap-promo-backdrop.show{ display:grid; }
+
+.ap-promo{
+  width:min(560px,92vw); background:#fff; color:#111;
+  border-radius:16px; padding:16px; border:1px solid #ececf3;
+  box-shadow:0 30px 70px rgba(0,0,0,.35);
+}
+
+.ap-promo-top{
+  display:flex; gap:16px; align-items:center;
+}
+
+/* LOGO MÁS GRANDE */
+.ap-promo-logo{
+  height: clamp(90px, 20vw, 120px);   /* << aumentá acá si lo querés aún más grande */
+  width:auto; object-fit:contain; flex-shrink:0;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,.15));
+}
+
+.ap-promo h3{ margin:0; font-size:20px; color:var(--violeta); }
+.ap-promo-status{ margin:4px 0 0; font-size:13px; color:#555; }
+
+.ap-promo-list{ margin:12px 0 0; padding-left:16px; }
+.ap-promo-list li{ margin:4px 0; font-size:14px; }
+
+.ap-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }

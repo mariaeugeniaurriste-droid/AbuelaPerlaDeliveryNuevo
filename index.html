@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Abuela Perla · Pedidos</title>
+
+  <!-- Tema y estilos -->
+  <meta name="theme-color" content="#5A2EA6">
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Favicon / Icons -->
+  <link rel="icon" href="assets/ap-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="assets/ap-192.png" />
+
+  <!-- Manifest PWA (solo uno) -->
+  <link rel="manifest" href="manifest-index.json" />
+
+  <!-- Loader pequeño -->
+  <style>
+    .ap-loader{ text-align:center; padding:40px; font-size:15px; color:#5A2EA6; animation:blink 1.4s infinite both; }
+    @keyframes blink {0%{opacity:.2}20%{opacity:1}100%{opacity:.2}}
+    /* --- Promo bienvenida --- */
+
+  </style>
+</head>
+<body class="store">
+  <header class="ap-header">
+    <div class="ap-wrap ap-brand">
+      <img src="assets/logo.png" alt="Abuela Perla" class="ap-logo">
+      <div class="ap-headings">
+        <h1 id="mainTitle">🍴 ¿Qué vas a pedir hoy?</h1>
+        <p class="ap-subtitle">Elegí lo que querés por categoría y cargalo al carrito.</p>
+      </div>
+    </div>
+    <div class="ap-wrap ap-pillbar" id="pillbar"></div>
+  </header>
+
+  <div class="ap-wrap">
+    <main class="ap-main">
+      <section>
+        <div id="catalog" class="ap-grid">
+          <div class="ap-loader">Cargando catálogo…</div>
+        </div>
+      </section>
+
+      <aside class="ap-cart">
+        <h2>🛒 Carrito</h2>
+        <ul id="cartList"></ul>
+
+        <div class="ap-tot">
+          <div class="ap-line"><span>Total productos</span><strong id="sumProducts">$0</strong></div>
+          <div class="ap-line"><span>🛵 Envío</span><strong id="shipCost">$0</strong></div>
+          <div class="ap-line ap-grand"><span>Total</span><span id="grandTotal">$0</span></div>
+        </div>
+
+        <div class="ap-sec">
+          <h3>🛵 Logistica</h3>
+          <div class="ap-row">
+            <label class="ap-chip"><input type="radio" name="delivery" value="retiro" checked> Retiro en local</label>
+            <label class="ap-chip"><input type="radio" name="delivery" value="envio"> Envío a domicilio</label>
+          </div>
+
+          <div id="deliveryFields" class="ap-hide">
+            <label class="ap-field"><span>Localidad</span>
+              <select id="selTown">
+                <option value="diamante">Diamante (+$500)</option>
+                <option value="strobel">Strobel (+$800)</option>
+              </select>
+            </label>
+            <label class="ap-field"><span>Apellido y nombre</span><input id="inpName" type="text" placeholder="Ej: Pérez María"></label>
+            <label class="ap-field"><span>Domicilio</span><input id="inpAddr" type="text" placeholder="Calle y número"></label>
+            <label class="ap-field"><span>Referencias (opcional)</span><textarea id="addrNotes" placeholder="Ej: casa con rejas negras"></textarea></label>
+          </div>
+
+          <div id="pickupFields">
+            <label class="ap-field"><span>Apellido y nombre</span><input id="inpNamePickup" type="text" placeholder="Ej: Pérez María"></label>
+          </div>
+        </div>
+
+        <div class="ap-sec">
+          <h3>💳 Forma de  Pago</h3>
+          <div class="ap-row">
+            <label class="ap-chip"><input type="radio" name="pay" value="efectivo" checked> Efectivo</label>
+            <label class="ap-chip"><input type="radio" name="pay" value="transferencia"> Transferencia</label>
+          </div>
+          <div id="transferBox" class="ap-transfer ap-hide">
+            <p><b>Alias:</b> abuela.perla.mp</p>
+            <p><b>Titular:</b> Agustin Urriste</p>
+            <p>📲 Enviar comprobante por WhatsApp 3435004592</p>
+          </div>
+        </div>
+
+        <div class="ap-sec">
+          <h3>📝 Observaciones</h3>
+          <textarea id="orderNotes" placeholder="Ej: hamburguesa sin aderezo."></textarea>
+        </div>
+
+        <div id="alertBox" class="ap-alert ap-hide" role="alert" aria-live="polite"></div>
+
+        <div class="ap-sec ap-actions">
+          <button class="ap-btn ap-ghost" id="btnClear">Vaciar carrito</button>
+          <button class="ap-btn ap-primary" id="btnSend" disabled>Enviar por WhatsApp</button>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Botón para actualizar PWA cuando haya nueva versión del SW -->
+  <button id="btnUpdate" hidden>Actualizar</button>
+
+  <!-- Tu lógica de tienda -->
+  <script src="app.js"></script>
+
+  <!-- Registro del Service Worker + flujo de actualización -->
+  <script>
+    (function(){
+      const btnUpdate = document.getElementById('btnUpdate');
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          // Si ya hay un SW instalado y aparece uno nuevo, mostramos el botón
+          const showBtn = () => { if (btnUpdate) btnUpdate.hidden = false; };
+
+          // Si hay un worker "waiting" al cargar
+          if (reg.waiting && navigator.serviceWorker.controller) showBtn();
+
+          // Detectar nuevas versiones
+          reg.addEventListener('updatefound', () => {
+            const nw = reg.installing;
+            nw && nw.addEventListener('statechange', () => {
+              if (nw.state === 'installed' && navigator.serviceWorker.controller) showBtn();
+            });
+          });
+
+          // Click en “Actualizar”: pedir al SW activar ya la nueva versión
+          btnUpdate?.addEventListener('click', async () => {
+            (await navigator.serviceWorker.getRegistration())?.waiting?.postMessage({ type: 'SKIP_WAITING' });
+          });
+
+          // Cuando el nuevo SW toma control, recargamos para usar archivos actualizados
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.location.reload();
+          });
+        }).catch(console.error);
+      }
+    })();
+  </script>
+  <!-- Promo de horarios / contacto -->
+<div id="promo" class="ap-promo-backdrop" role="dialog" aria-modal="true" aria-labelledby="promoTitle">
+  <div class="ap-promo">
+    <div class="ap-promo-top">
+      <img src="assets/logo.png" class="ap-promo-logo" alt="Abuela Perla">
+      <div>
+        <h3 id="promoTitle">Armá tu pedido en segundos</h3>
+        <p id="promoStatus" class="ap-promo-status">Mié a Lun • 19:00–00:00</p>
+      </div>
+    </div>
+
+    <ul class="ap-promo-list">
+      <li><b>Días:</b> Miércoles a Lunes (Martes cerrado)</li>
+      <li><b>Horario:</b> 19:00 a 00:00 hs</li>
+      <li><b>WhatsApp:</b> <a href="https://wa.me/5493434515370" target="_blank" rel="noopener">343 451 5370</a></li>
+      <li><b>Teléfono fijo:</b> <a href="tel:343983135">343 983 135</a></li>
+      <li><b>Dirección:</b> Esquina Colón y Dasso - Diamante - Entre Ríos</li>
+    </ul>
+
+    <div class="ap-actions">
+      <button class="ap-btn ap-primary" id="promoClose">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof showPromo === 'function') showPromo();
+  });
+</script>
+
+<script>
+(function(){
+  const promo = document.getElementById('promo');
+  const btnClose = document.getElementById('promoClose');
+  let promoTimer;
+
+  function openPromo(){
+    if (!promo) return;
+    promo.classList.add('show');
+    clearTimeout(promoTimer);
+    promoTimer = setTimeout(closePromo, 10000); // 10 segundos
+  }
+
+  function closePromo(){
+    if (!promo) return;
+    promo.classList.remove('show');
+    clearTimeout(promoTimer);
+  }
+
+  // Cierre manual
+  btnClose?.addEventListener('click', closePromo);
+  // Cerrar al hacer clic fuera de la tarjeta
+  promo?.addEventListener('click', (e) => {
+    if (e.target === promo) closePromo();
+  });
+  // Cerrar con Esc
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closePromo();
+  });
+
+  // Abrir al cargar
+  window.addEventListener('load', openPromo);
+})();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Abuela Perla · Cocina</title>
+
+  <!-- PWA / Icons -->
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="icon" href="assets/ap-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="assets/ap-192.png" />
+  <link rel="manifest" href="manifest-cocina.json" />
+
+  <!-- Base global (tu styles.css) -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Estilos específicos del panel de cocina -->
+  <style>
+    :root{
+      --bg: #0e0f13;
+      --panel: #ffffff;
+      --ink: #111216;
+      --muted: #6a7382;
+      --accent: #5A2EA6;
+      --ok: #18c37d;
+      --warn: #ffb020;
+      --border: #ececf3;
+    }
+    *{ box-sizing: border-box }
+    html, body { height: 100% }
+    body{
+      margin: 0;
+      background: radial-gradient(1200px 600px at -10% -10%, #1a1c24 0%, #0e0f13 60%);
+      color: #e9edf3;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* ===== Header BLANCO ===== */
+    header.k-head{
+      position: sticky; top: 0; z-index: 10;
+      background: #fff; color:#111;
+      border-bottom: 1px solid rgba(0,0,0,.08);
+    }
+    .k-wrap{ max-width: 1200px; margin: auto; padding: 14px }
+    .k-row{ display:flex; gap:14px; align-items:center; justify-content:space-between }
+
+    .k-brand{ display:flex; align-items:center; gap:12px }
+    .k-brand-logo{
+      width: 96px; height: 72px; /* header blanco, logo sin caja */
+      display:grid; place-items:center;
+    }
+    .k-brand-logo img{
+      display:block; max-height:72px; width:auto; object-fit:contain; filter:none;
+    }
+    .k-brand h1{
+      margin:0; font-size:18px; letter-spacing:.2px; color:#111; font-weight:700;
+    }
+    .k-statusline{
+      margin-top:2px; font-size:12px; color:#555; display:flex; gap:10px; align-items:center;
+    }
+    .k-dot{
+      width:8px; height:8px; border-radius:999px; background:#9aa3b2;
+      box-shadow:0 0 0 4px rgba(154,163,178,.15);
+    }
+    .k-dot.ok{ background: var(--ok); box-shadow:0 0 0 4px rgba(24,195,125,.18) }
+
+    .k-toolbar{ display:flex; gap:8px; align-items:center }
+    .k-btn{
+      appearance:none; border:1px solid #e3e6ef; background:#f6f7fb; color:#111;
+      padding:10px 14px; border-radius:12px; font-weight:700; cursor:pointer;
+    }
+    .k-btn:hover{ background:#eef0f7 }
+    .k-btn.primary{ background: var(--accent); color:#fff; border-color: var(--accent) }
+
+    /* ===== Contenido ===== */
+    main{ max-width: 1200px; margin: 18px auto; padding: 0 14px }
+    .k-cols{ display:grid; grid-template-columns: 1fr 1fr; gap: 18px }
+    @media (max-width: 980px){ .k-cols{ grid-template-columns: 1fr } }
+
+    section > h3{
+      margin:0 0 10px 2px; font-size:15px; color:#c7cede; font-weight:700;
+      display:flex; align-items:center; gap:8px;
+    }
+    .k-badge{
+      font-size:12px; color:#1b1f2a; background:#dfe6ff; border:1px solid #cfd8ff;
+      border-radius:999px; padding:4px 8px;
+    }
+    .k-list{ display:grid; gap:12px }
+    .k-empty{
+      font-size:13px; color:#aab2c2; border:1px dashed #2b2f3a; border-radius:14px;
+      padding:14px; text-align:center; background: rgba(255,255,255,.02);
+    }
+
+    /* Tarjetas de pedidos */
+    .k-card{
+      background: var(--panel); color: var(--ink);
+      border:1px solid var(--border); border-radius:16px;
+      box-shadow: 0 10px 26px rgba(0,0,0,.10);
+      padding:14px; display:grid; gap:10px;
+    }
+    .k-hdr{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px }
+    .k-hdr .left{ display:grid; gap:2px }
+    .k-oid{ font-weight:800; font-size:14px; letter-spacing:.3px }
+    .k-created{ font-size:12px; color:#6e7685 }
+    .k-meta{ font-size:13px; color:#4d5463; display:flex; flex-direction:column; gap:4px; text-align:right }
+
+    .k-items{ display:grid; gap:6px; border-top:1px dashed #e7e7f0; padding-top:8px }
+    .k-rowline{ display:flex; justify-content:space-between; gap:8px }
+    .k-rowline b{ font-variant-numeric: tabular-nums }
+
+    .k-sum{ display:grid; gap:4px; border-top:1px solid #ececf3; padding-top:8px }
+    .k-sum .grand{ font-weight:900; font-size:16px }
+
+    .k-notes{
+      background:#fff7d6; border:1px dashed #ffd45a; color:#5b4a00;
+      padding:8px; border-radius:10px; font-size:13px;
+    }
+
+    .k-actions{ display:flex; gap:8px; flex-wrap:wrap }
+
+    /* ===== Print ===== */
+    @media print{
+      body{ background:#fff; color:#000 }
+      header, .k-toolbar, .k-badge{ display:none !important }
+      main{ margin:0; padding:0 }
+      .k-cols{ grid-template-columns: 1fr }
+      .k-card{ page-break-inside: avoid }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER blanco -->
+  <header class="k-head">
+    <div class="k-wrap">
+      <div class="k-row">
+        <div class="k-brand">
+          <div class="k-brand-logo" aria-hidden="true">
+            <img src="assets/logo.png" alt="Abuela Perla" />
+          </div>
+          <div class="brand-info">
+            <h1>Panel de Cocina</h1>
+            <div class="k-statusline">
+              <span class="k-dot ok" id="dot"></span>
+              <span id="status">Listo. Actualizado.</span>
+              · <small>Actualizado: <b id="lastUpdate">—</b></small>
+            </div>
+          </div>
+        </div>
+
+        <div class="k-toolbar">
+          <button id="btnRefresh" class="k-btn">Actualizar estado</button>
+          <button id="btnUpdate" class="k-btn" hidden>Actualizar app</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- LISTAS -->
+  <main>
+    <div class="k-cols">
+      <section>
+        <h3>Pendientes <span class="k-badge" id="badgePending">0</span></h3>
+        <div id="listPending" class="k-list">
+          <div class="k-empty">Sin pendientes</div>
+        </div>
+      </section>
+
+      <section>
+        <h3>Impresos (recientes) <span class="k-badge" id="badgePrinted">0</span></h3>
+        <div id="listPrinted" class="k-list">
+          <div class="k-empty">Aún no hay impresos</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Lógica del panel cocina -->
+  <script src="cocina.js" defer></script>
+
+  <!-- Service Worker + botón “Actualizar app” (SKIP_WAITING) -->
+  <script>
+    (function(){
+      const btnUpdate = document.getElementById('btnUpdate');
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          const showBtn = () => { if (btnUpdate) btnUpdate.hidden = false; };
+
+          // Si hay un SW “esperando” al cargar
+          if (reg.waiting && navigator.serviceWorker.controller) showBtn();
+
+          // Detectar nueva versión instalada
+          reg.addEventListener('updatefound', () => {
+            const nw = reg.installing;
+            nw && nw.addEventListener('statechange', () => {
+              if (nw.state === 'installed' && navigator.serviceWorker.controller) showBtn();
+            });
+          });
+
+          // Click en “Actualizar app”: activar el nuevo SW ya
+          btnUpdate?.addEventListener('click', async () => {
+            (await navigator.serviceWorker.getRegistration())?.waiting?.postMessage({ type: 'SKIP_WAITING' });
+          });
+
+          // Cuando el nuevo SW toma el control, recargamos
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.location.reload();
+          });
+        }).catch(console.error);
+      }
+    })();
+  </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+
+</body>
+</html>

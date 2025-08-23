@@ -1,0 +1,12 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+  <g fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+    <!-- wheels -->
+    <circle cx='6' cy='18' r='2'/>
+    <circle cx='18' cy='18' r='2'/>
+    <!-- delivery box -->
+    <rect x='2.5' y='8.8' width='5.2' height='4.4' rx='0.8'/>
+    <!-- frame & seat -->
+    <path d='M8 18h6l3-6h-4l-1.6-4H7'/>
+    <path d='M14 8h2.5'/>
+  </g>
+</svg>
