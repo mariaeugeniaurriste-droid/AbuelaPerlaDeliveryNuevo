@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Open Graph / Facebook / WhatsApp -->
-<meta property="og:title" content="Abuela Perla — Menú" />
-<meta property="og:description" content="Elegí tu pedido y enviá por WhatsApp. Mié–Lun 19:00 a 00:00. Martes cerrado." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://abuela-perla-delivery.vercel.app/" />
-<meta property="og:image" content="https://abuela-perla-delivery.vercel.app/logo.png" />
-<meta property="og:image:alt" content="Abuela Perla" />
 
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Abuela Perla — Menú" />
-<meta name="twitter:description" content="Elegí tu pedido y enviá por WhatsApp." />
-<meta name="twitter:image" content="https://abuela-perla-delivery.vercel.app/logo.png" />
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:title" content="Abuela Perla — Menú" />
+  <meta property="og:description" content="Elegí tu pedido y enviá por WhatsApp. Mié–Lun 19:00 a 00:00. Martes cerrado." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://abuela-perla-delivery.vercel.app/" />
+  <meta property="og:image" content="https://abuela-perla-delivery.vercel.app/logo.png" />
+  <meta property="og:image:alt" content="Abuela Perla" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Abuela Perla — Menú" />
+  <meta name="twitter:description" content="Elegí tu pedido y enviá por WhatsApp." />
+  <meta name="twitter:image" content="https://abuela-perla-delivery.vercel.app/logo.png" />
 
   <title>Abuela Perla — Menú</title>
-
   <link rel="stylesheet" href="styles.css" />
 
   <!-- Favicon -->
@@ -59,37 +59,30 @@
     .ap-burger i:nth-child(1){ top:0; } .ap-burger i:nth-child(2){ top:6px; } .ap-burger i:nth-child(3){ top:12px; }
     #openMenu.is-open .ap-burger i:nth-child(1){ top:6px; transform:rotate(45deg); } #openMenu.is-open .ap-burger i:nth-child(2){ opacity:0; } #openMenu.is-open .ap-burger i:nth-child(3){ top:6px; transform:rotate(-45deg); }
 
-    #openCart{ background:transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important; display:flex; align-items:center; gap:.35rem; }
-    #openCart:hover{ transform:none; background:transparent; }
+    /* Icono carrito suelto */
+    .ap-cart-icon{ text-decoration:none; display:flex; align-items:center; gap:.35rem; padding:0; background:transparent; border:0; box-shadow:none; }
+    .ap-cart-icon img{ width:18px; height:18px; object-fit:contain; vertical-align:-2px; }
     #cartCount{ display:inline-flex; min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:#f7b046; color:#0b0d14; font-weight:800; font-size:12px; line-height:18px; align-items:center; justify-content:center; border:0; }
 
+    /* Botón copiar alias (chico y prolijo) */
     .ap-copy-row{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
-    .ap-copy-btn{ appearance:none; border:1px solid #2a2f3f; background:#141925; color:#e7e9ef; padding:.28rem .55rem; border-radius:10px; cursor:pointer; display:flex; align-items:center; gap:.4rem; transition:transform .12s ease, background .12s ease, border-color .12s ease; }
+    .ap-copy-btn{ appearance:none; border:1px solid #2a2f3f; background:#141925; color:#e7e9ef; padding:.18rem .45rem; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:.35rem; font-size:12px; }
     .ap-copy-btn:hover{ background:#192131; border-color:#3a4057; transform:translateY(-1px); }
+    .ap-copy-btn svg{ width:14px; height:14px; }
     .ap-copied{ font-size:.9rem; color:#7ee787; }
 
-    /* Drawer menu: íconos uniformes */
+    /* Drawer menú: íconos uniformes */
     .ap-menu-list{ display:flex; flex-direction:column; gap:.35rem; }
-    .ap-menu-list a{
-      display:flex; align-items:center; gap:.6rem;
-      padding:.6rem .7rem; border-radius:12px;
-      text-decoration:none; color:#e7e9ef;
-      background:#151823; border:1px solid #2a2f3f;
-    }
+    .ap-menu-list a{ display:flex; align-items:center; gap:.6rem; padding:.6rem .7rem; border-radius:12px; text-decoration:none; color:#e7e9ef; background:#151823; border:1px solid #2a2f3f; }
     .ap-menu-list a:hover{ background:#1b1f2d; border-color:#3a4057; }
-    .ap-menu-ico{
-      width:18px; height:18px; flex:0 0 18px;
-      object-fit:contain; display:block;
-      filter:none; /* por si alguna imagen trae sombra */
-    }
+    .ap-menu-ico{ width:18px; height:18px; flex:0 0 18px; object-fit:contain; display:block; }
 
     /* Botón flotante "Subir" */
     #apScrollTop{
       position:fixed; right:16px; bottom:16px; width:44px; height:44px; border-radius:999px;
       display:grid; place-items:center; border:1px solid #2a2f3f; background:#151823; color:#e7e9ef;
       box-shadow:0 10px 30px rgba(0,0,0,.3); cursor:pointer; opacity:0; pointer-events:none;
-      transition:opacity .15s ease, transform .15s ease;
-      z-index:100;
+      transition:opacity .15s ease, transform .15s ease; z-index:100;
     }
     #apScrollTop.show{ opacity:1; pointer-events:auto; }
     #apScrollTop:hover{ transform:translateY(-2px); }
@@ -131,7 +124,7 @@
       <a href="https://wa.me/5493434515370?text=hola%20tengo%20una%20consulta..." target="_blank" rel="noopener" title="WhatsApp">
         <img src="assets/whatsapp.png" alt="" aria-hidden="true">Contacto
       </a>
-      <a href="#ubicacion" title="Ver ubicación"> <img src="assets/ubicacion.png" alt="">Ubicación</a>
+      <a href="#ubicacion" title="Ver ubicación"><img src="assets/ubicacion.png" alt="" aria-hidden="true">Ubicación</a>
       <a href="https://play.google.com/store/apps/details?id=com.manzanzani.abuela_perla" title="Descargar App">
         <img src="assets/playstore.png" alt="" aria-hidden="true">Descargar app
       </a>
@@ -144,18 +137,17 @@
         <span class="ap-burger"><i></i><i></i><i></i></span>
       </button>
 
-      <button id="openCart" class="ap-btn ap-btn--pill" aria-label="Abrir carrito">
-        <img src="assets/carrito.png" alt="" style="width:18px;height:18px;object-fit:contain;vertical-align:-2px" />
+      <!-- Icono carrito con hash #carrito para manejar “Atrás” -->
+      <a id="openCart" href="#carrito" class="ap-cart-icon" aria-label="Abrir carrito">
+        <img src="assets/carrito.png" alt="" />
         <span id="cartCount">0</span>
-      </button>
+      </a>
     </div>
   </header>
 
   <main class="ap-container" id="top">
     <section class="ap-hero-banner" aria-labelledby="hero-title">
-      <img
-        class="ap-hero__img-mobile"
-        src="assets/banner-celu-texto.png"
+      <img class="ap-hero__img-mobile" src="assets/banner-celu-texto.png"
         alt="¿Qué vas a comer hoy? Elegí una categoría, sumá productos y, cuando estés listo, abrí el carrito para enviar tu pedido por WhatsApp."
         loading="eager" decoding="async">
       <div class="ap-hero__content">
@@ -229,10 +221,10 @@
 
             <div class="ap-grid-2">
               <label class="ap-label">Nombre
-                <input name="nombre" placeholder="Ej: María" />
+                <input name="nombre" placeholder="Ej: Juan" />
               </label>
               <label class="ap-label">Apellido
-                <input name="apellido" placeholder="Ej: Urriste" />
+                <input name="apellido" placeholder="Ej: Pérez" />
               </label>
               <label class="ap-label">Teléfono (WhatsApp)
                 <input name="telefono" type="tel" inputmode="tel" placeholder="Ej: 3435..." />
@@ -249,9 +241,7 @@
               <label class="ap-label">Domicilio (si envío)
                 <input name="domicilio" placeholder="Calle y número" />
               </label>
-              <label class="ap-label">Referencia (si envío)
-                <input name="referencia" placeholder="Puerta negra, al lado de..." />
-              </label>
+              <!-- Se eliminó el campo "Referencia (si envío)" -->
             </div>
 
             <h3>Método de pago</h3>
@@ -312,38 +302,14 @@
 
       <div class="ap-drawer__body">
         <nav class="ap-menu-list">
-          <a href="#" id="menuHome">
-            <img src="assets/menu.png" alt="" class="ap-menu-ico">
-            <span>Carta de Productos</span>
-          </a>
-          <a href="#horarios">
-            <img src="assets/horario.png" alt="" class="ap-menu-ico">
-            <span>Horarios de Atención</span>
-          </a>
-          <a href="#ubicacion">
-            <img src="assets/ubicacion.png" alt="" class="ap-menu-ico">
-            <span>Ubicación</span>
-          </a>
-          <a href="https://wa.me/5493434515370?text=hola%20tengo%20una%20consulta..." target="_blank" rel="noopener">
-            <img src="assets/whatsapp.png" alt="" class="ap-menu-ico">
-            <span>WhatsApp +5493434515370</span>
-          </a>
-          <a href="tel:3434983135">
-            <img src="assets/fijo.png" alt="" class="ap-menu-ico">
-            <span>Teléfono 343 498 3135</span>
-          </a>
-          <a href="https://www.facebook.com/profile.php?id=100063585817913&rdid=JLX6Ehm8rsHz6quk&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1J5ShRXuWX%2F#" target="_blank" rel="noopener">
-            <img src="assets/facebook.png" alt="" class="ap-menu-ico">
-            <span>Facebook</span>
-          </a>
-          <a href="https://www.instagram.com/panaderiaabuela?igsh=NW9lbHUxYjN5aWpl" target="_blank" rel="noopener">
-            <img src="assets/instagram.png" alt="" class="ap-menu-ico">
-            <span>Instagram</span>
-          </a>
-          <a href="https://play.google.com/store/apps/details?id=com.manzanzani.abuela_perla" target="_blank" rel="noopener">
-            <img src="assets/playstore.png" alt="" class="ap-menu-ico">
-            <span>Descargar app</span>
-          </a>
+          <a href="#" id="menuHome"><img src="assets/menu.png" alt="" class="ap-menu-ico"><span>Carta de Productos</span></a>
+          <a href="#horarios"><img src="assets/horario.png" alt="" class="ap-menu-ico"><span>Horarios de Atención</span></a>
+          <a href="#ubicacion"><img src="assets/ubicacion.png" alt="" class="ap-menu-ico"><span>Ubicación</span></a>
+          <a href="https://wa.me/5493434515370?text=hola%20tengo%20una%20consulta..." target="_blank" rel="noopener"><img src="assets/whatsapp.png" alt="" class="ap-menu-ico"><span>WhatsApp +5493434515370</span></a>
+          <a href="tel:3434983135"><img src="assets/fijo.png" alt="" class="ap-menu-ico"><span>Teléfono 343 498 3135</span></a>
+          <a href="https://www.facebook.com/profile.php?id=100063585817913&rdid=JLX6Ehm8rsHz6quk&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1J5ShRXuWX%2F#" target="_blank" rel="noopener"><img src="assets/facebook.png" alt="" class="ap-menu-ico"><span>Facebook</span></a>
+          <a href="https://www.instagram.com/panaderiaabuela?igsh=NW9lbHUxYjN5aWpl" target="_blank" rel="noopener"><img src="assets/instagram.png" alt="" class="ap-menu-ico"><span>Instagram</span></a>
+          <a href="https://play.google.com/store/apps/details?id=com.manzanzani.abuela_perla" target="_blank" rel="noopener"><img src="assets/playstore.png" alt="" class="ap-menu-ico"><span>Descargar app</span></a>
         </nav>
       </div>
     </div>
@@ -380,8 +346,8 @@
   <!-- Botón flotante "Subir" -->
   <button id="apScrollTop" aria-label="Subir" title="Subir">▲</button>
 
-  <!-- JS principal (cache-bust) -->
-  <script src="app.js?v=7" defer></script>
+  <!-- JS principal -->
+  <script src="app.js?v=9" defer></script>
 
   <!-- JS mínimo para menú/nav + extras -->
   <script>
@@ -394,67 +360,42 @@
 
     function drawerOpenMenu(){ menuDrawer.setAttribute('aria-hidden','false'); openMenuBtn.classList.add('is-open'); }
     function drawerCloseMenu(){ menuDrawer.setAttribute('aria-hidden','true');  openMenuBtn.classList.remove('is-open'); }
-    function drawerOpenCart(){ cartDrawer.setAttribute('aria-hidden','false'); window.AP?.renderCart?.(); }
-    function drawerCloseCart(){ cartDrawer.setAttribute('aria-hidden','true'); }
 
-    openMenuBtn?.addEventListener('click', ()=>{ drawerCloseCart(); (menuDrawer.getAttribute('aria-hidden')==='true') ? drawerOpenMenu() : drawerCloseMenu(); });
+    openMenuBtn?.addEventListener('click', ()=>{ AP?.closeCartRoutingAware?.(); (menuDrawer.getAttribute('aria-hidden')==='true') ? drawerOpenMenu() : drawerCloseMenu(); });
     closeMenuBtn?.addEventListener('click', drawerCloseMenu);
-    keepShopBtn?.addEventListener('click', ()=>{ drawerCloseCart(); });
+    keepShopBtn?.addEventListener('click', ()=>{ AP?.closeCartRoutingAware?.(); });
 
     const goHome = (ev)=>{ ev?.preventDefault(); drawerCloseMenu(); window.scrollTo({ top:0, behavior:'smooth' }); };
     document.getElementById('menuHome')?.addEventListener('click', goHome);
 
-    // Habilitar/inhabilitar "Enviar pedido" según modalidad
-    const envioSelect = document.getElementById('envioSelect');
-    const checkoutBtn = document.getElementById('checkoutBtn');
-    function syncCheckoutBtn(){ if(checkoutBtn) checkoutBtn.disabled = !envioSelect.value; }
-    envioSelect?.addEventListener('change', syncCheckoutBtn);
-
-    // Copiar alias
-    document.getElementById('copyAlias')?.addEventListener('click', async ()=>{
-      const txt = document.getElementById('apAliasText')?.textContent?.trim() || '';
-      if (!txt) return;
-      try{
-        await navigator.clipboard.writeText(txt);
-        const ok = document.getElementById('aliasCopied');
-        if(ok){ ok.hidden = false; setTimeout(()=> ok.hidden = true, 1500); }
-      }catch(_){ alert('No se pudo copiar el alias.'); }
-    });
-
     // Botón "Subir"
     (function(){
       const btn = document.getElementById('apScrollTop');
-      const onScroll = ()=> {
-        if (window.scrollY > 220) btn.classList.add('show'); else btn.classList.remove('show');
-      };
+      const onScroll = ()=> { if (window.scrollY > 220) btn.classList.add('show'); else btn.classList.remove('show'); };
       window.addEventListener('scroll', onScroll, { passive:true });
       btn.addEventListener('click', ()=> window.scrollTo({ top:0, behavior:'smooth' }));
       onScroll();
     })();
 
-    // Estado abierto/cerrado (mié–lun 19:00–00:00, martes cerrado)
+    // Estado abierto/cerrado (mié–lun 19:00–00:00, martes cerrado) – visual
     (function(){
       const badge = document.getElementById('apOpenBadge');
       if (!badge) return;
       const now = new Date();
-      const day = now.getDay(); // 0 dom, 1 lun, 2 mar, 3 mié, 4 jue, 5 vie, 6 sáb
-      const openDays = [0,1,3,4,5,6]; // dom,lun,mié,jue,vie,sáb (martes = 2 cerrado)
+      const day = now.getDay();
+      const openDays = [0,1,3,4,5,6];
       const isOpenDay = openDays.includes(day);
       const mins = now.getHours()*60 + now.getMinutes();
-      const openM = 19*60;          // 19:00
-      const closeM = 24*60;         // 00:00 del día siguiente
+      const openM = 19*60, closeM = 24*60;
       const isOpenTime = (mins >= openM && mins < closeM);
       const open = isOpenDay && isOpenTime;
-
       badge.textContent = open ? 'Estamos atendiendo' : 'Cerrado';
       badge.classList.toggle('ap-open', open);
       badge.classList.toggle('ap-closed', !open);
       badge.title = 'Horario hoy: ' + (isOpenDay ? '19:00–00:00' : 'Cerrado');
     })();
-  </script>
 
-  <!-- cinturón y tirantes: si el defer llegara tarde, arrancamos igual -->
-  <script>
+    // cinturón y tirantes: si el defer llegara tarde, arrancamos igual
     document.addEventListener('DOMContentLoaded', () => {
       if (window.AP && typeof window.AP.bootHome === 'function') {
         window.AP.bootHome();
@@ -463,3 +404,4 @@
   </script>
 </body>
 </html>
+

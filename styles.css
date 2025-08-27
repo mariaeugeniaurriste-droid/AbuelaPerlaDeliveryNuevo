@@ -819,3 +819,37 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background: linear-gradient(180deg, rgba(var(--brand-rgb), .10), transparent);
 }
 .ap-size-btn:disabled{ opacity:.45; cursor:not-allowed; }
+/* Iconitos del menú hamburguesa — tamaño unificado */
+.ap-menu-list img{width:16px;height:16px;object-fit:contain;vertical-align:-3px;margin-right:.45rem}
+
+/* Asegurar scroll en páginas largas */
+html, body { height: auto; min-height: 100%; }
+.ap-cart-title{ margin:0 }
+
+/* Paneles y containers nunca cortados */
+.ap-drawer__panel, .ap-drawer__body { max-height: 100vh; overflow:auto; }
+/* en styles.css */
+.ap-drawer__panel{ display:flex; flex-direction:column; max-height:100vh; }
+.ap-drawer__body{ overflow:auto; -webkit-overflow-scrolling:touch; }
+/* Icono de carrito suelto (sin pastilla) */
+.ap-cart-icon{
+  display:flex; align-items:center; gap:.35rem;
+  padding:0; background:transparent; border:0; box-shadow:none;
+}
+.ap-cart-icon img{ width:22px; height:22px; object-fit:contain;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.28));
+}
+#cartCount{
+  position:relative; min-width:18px; height:18px; padding:0 5px;
+  border-radius:999px; background:#f7b046; color:#0b0d14;
+  font-weight:800; font-size:12px; line-height:18px;
+  display:inline-flex; align-items:center; justify-content:center; border:0;
+}
+
+/* Botón “copiar alias” mini, redondito */
+.ap-copy-btn--icon{
+  width:28px; height:28px; padding:0; border-radius:10px;
+  display:grid; place-items:center;
+}
+.ap-copy-btn--icon svg{ width:16px; height:16px }
+.ap-copy-btn--icon span{ display:none } /* oculto por si quedara texto */

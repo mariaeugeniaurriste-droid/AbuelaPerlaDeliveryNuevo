@@ -1,4 +1,4 @@
-/* ========================================================= 
+/* =========================================================
    Abuela Perla - Catálogo + Carrito + Admin + Panel Cocina
    ========================================================= */
 
@@ -7,10 +7,10 @@ const AP = (() => {
      1) CONFIG
      ========================== */
   const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbwAq-qrLWHHBBqG05XC6m-6BkBTLo_x37dEAzCD4s6FwWHytJIJLK_XflFbLsRXH2oVTw/exec";
-  const EMPLOYEE_WA  = "5493434515370"; // WhatsApp para pedidos (puede ser distinto al de consultas)
+  const EMPLOYEE_WA  = "5493434515370"; // WhatsApp para pedidos
   const TRANSFER     = { alias: "abuela.perla.mp", titular: "Agustín Urriste", compa: "5493434515370" };
   const ENVIO        = { Diamante: 500, Strobel: 800, retiro: 0 }; // fallback local
-  const HOURS        = { open:"19:00", close:"23:59", open_days:[0,1,3,4,5,6], closed_dates:[] }; // fallback local
+  const HOURS        = { open:"19:00", close:"23:59", open_days:[0,1,3,4,5,6], closed_dates:[] }; // fallback local (martes cerrado)
   const TOKEN_KEY    = "AP_ADMIN_TOKEN";
 
   const ALLOW_NOTES = new Set(["Hamburguesas", "Lomitos", "Patynesas y Milanesas"]);
@@ -27,7 +27,7 @@ const AP = (() => {
   const ASSET = n => `assets/${n}`;
   const isoDate = d => new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
   const HHmm = d => d.toTimeString().slice(0,5);
-  const stripAccents = (s="}") => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const stripAccents = (s="") => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   const normKey = (s="") => stripAccents(String(s).toLowerCase().trim());
   const todayISO = ()=> isoDate(new Date());
 
@@ -132,7 +132,8 @@ const AP = (() => {
      ========================== */
   const ADMIN_ACTIONS = new Set([
     "updateVisibility", "listOrders", "setOrderStatus",
-    "upsertProduct", "deleteProduct", "upsertConfig", "archiveDay"
+    "upsertProduct", "deleteProduct", "upsertConfig", "archiveDay",
+    "createOrder"
   ]);
 
   async function api(action, data = {}, requireAuth = false) {
@@ -285,7 +286,6 @@ const AP = (() => {
         }
       }
     }catch(e){ console.warn("[config] getConfig falló", e); }
-    // tras cargar/actualizar config, refrescar badges de estado
     queueOpenBadgesRefresh();
   }
 
@@ -332,10 +332,7 @@ const AP = (() => {
 
   /* ---------- PIZZAS: helpers y render especial ---------- */
   function basePizzaName(n = "") {
-    return String(n)
-      .replace(/^Media\s+Pizza\s+/i, "")
-      .replace(/^Pizza\s+/i, "")
-      .trim();
+    return String(n).replace(/^Media\s+Pizza\s+/i, "").replace(/^Pizza\s+/i, "").trim();
   }
   function groupPizzas() {
     const map = new Map();
@@ -684,12 +681,10 @@ const AP = (() => {
             ? `<button class="ap-ghost" aria-label="quitar">🗑️</button>`
             : `<button class="ap-qty-btn" aria-label="menos">−</button>
                <button class="ap-qty-btn" aria-label="más">+</button>
-               <button class="ap-ghost" aria-label="quitar">🗑️</button>`
-          }
+               <button class="ap-ghost" aria-label="quitar">🗑️</button>`}
         </div>`;
       if (soloEliminar){
-        const btnDel = row.querySelector(".ap-ghost");
-        btnDel.onclick = ()=>removeFromCart(i);
+        row.querySelector(".ap-ghost").onclick = ()=>removeFromCart(i);
       }else{
         const [btnMenos, btnMas, btnDel] = row.querySelectorAll("button");
         btnMenos.onclick = ()=>changeQty(i,-1);
@@ -709,8 +704,30 @@ const AP = (() => {
     if (checkoutBtn) checkoutBtn.disabled = !envioSel;
   }
 
-  function openCart(){ $("#cartDrawer")?.setAttribute("aria-hidden","false"); renderCart(); }
-  function closeCart(){ $("#cartDrawer")?.setAttribute("aria-hidden","true"); }
+  // --- Router hash para el carrito (#carrito) ---
+  let _openingFromHash = false;
+  function openCart(fromHash=false){
+    _openingFromHash = fromHash;
+    $("#cartDrawer")?.setAttribute("aria-hidden","false");
+    renderCart();
+    if (!fromHash && location.hash !== "#carrito") {
+      history.pushState({ ap: "carrito" }, "", "#carrito");
+    }
+  }
+  function closeCart(){
+    $("#cartDrawer")?.setAttribute("aria-hidden","true");
+    if (location.hash === "#carrito") {
+      // Si la apertura metió un pushState, volvemos una
+      history.back();
+    }
+  }
+  window.addEventListener("hashchange", ()=>{
+    if (location.hash === "#carrito") openCart(true);
+    else $("#cartDrawer")?.setAttribute("aria-hidden","true");
+  });
+  window.addEventListener("popstate", ()=>{
+    if (location.hash !== "#carrito") $("#cartDrawer")?.setAttribute("aria-hidden","true");
+  });
 
   /* ==========================
      12) TOAST
@@ -753,8 +770,65 @@ const AP = (() => {
     setTimeout(close, 3500);
   }
 
+  /* ==========================
+     13) HORARIOS (robustos, sin “1899”)
+     ========================== */
+  function parseHHmm(str = "00:00"){
+    const [h, m] = String(str).split(":").map(n => +n || 0);
+    return { h, m, mins: h * 60 + m };
+  }
+  function openHoursText(){
+    const tueClosed = (HOURS.open_days || []).includes(2) ? "" : " (Mar cerrado)";
+    return `${HOURS.open}–${HOURS.close}${tueClosed}`;
+  }
+  function closedReasonFor(dateISO){
+    const cd = HOURS.closed_dates;
+    if (!cd) return "";
+    if (Array.isArray(cd)) {
+      if (!cd.length) return "";
+      if (typeof cd[0] === "string") return cd.includes(dateISO) ? "cerrado" : "";
+      const hit = cd.find(x => (x?.date || x?.day) === dateISO);
+      return hit ? (hit.reason || hit.msg || "cerrado") : "";
+    }
+    if (typeof cd === "object") {
+      const v = cd[dateISO];
+      return !v ? "" : (typeof v === "string" ? v : (v.reason || v.msg || "cerrado"));
+    }
+    return "";
+  }
+  function isOpenNow(now = new Date()){
+    const day = now.getDay(); // 0..6
+    const openDays = HOURS.open_days && HOURS.open_days.length ? HOURS.open_days : [0,1,3,4,5,6]; // martes fuera
+    if (!openDays.includes(day)) return false;
+
+    const base = new Date(now); base.setHours(0,0,0,0);
+    if (closedReasonFor(base.toISOString().slice(0,10))) return false;
+
+    const cur = now.getHours() * 60 + now.getMinutes();
+    const { mins: openM }  = parseHHmm(HOURS.open || "19:00");
+    const { mins: closeM } = parseHHmm(HOURS.close || "23:59");
+
+    if (closeM > openM) return cur >= openM && cur < closeM; // rango normal
+    return cur >= openM || cur < closeM; // cruza medianoche
+  }
+  function setOpenStateBadge(){
+    const badge = $("#apOpenBadge") || $("#openState");
+    if(!badge) return;
+    const open = isOpenNow();
+    badge.textContent = open ? "Estamos atendiendo" : "Cerrado";
+    badge.classList.toggle("ap-open", open);
+    badge.classList.toggle("ap-closed", !open);
+    badge.title = "Horario: " + openHoursText();
+  }
+  let OPEN_BADGE_TIMER = null;
+  function queueOpenBadgesRefresh(){
+    setOpenStateBadge();
+    if (OPEN_BADGE_TIMER) clearInterval(OPEN_BADGE_TIMER);
+    OPEN_BADGE_TIMER = setInterval(setOpenStateBadge, 60000);
+  }
+
   /* =================================================
-     13) CHECKOUT
+     14) CHECKOUT
      ================================================= */
   function toggleDeliveryRequirements(){
     const envioSel = $("#envioSelect")?.value || "";
@@ -787,14 +861,10 @@ const AP = (() => {
     if (bindCheckout._bound) return;
     bindCheckout._bound = true;
 
-    $("#openCart")?.addEventListener("click", openCart);
-    $("#closeCart")?.addEventListener("click", closeCart);
-    $("#keepShopping")?.addEventListener("click", ()=>{ 
-      const form = $("#checkoutForm");
-      const btn  = $("#checkoutBtn");
-      if(form && btn){ form.hidden = true; btn.hidden = false; }
-      closeCart();
-    });
+    // Botones de apertura/cierre
+    $("#openCart")?.addEventListener("click", (e)=>{ e.preventDefault(); openCart(); });
+    $("#closeCart")?.addEventListener("click", (e)=>{ e.preventDefault(); closeCart(); });
+    $("#keepShopping")?.addEventListener('click', (e)=>{ e.preventDefault(); closeCart(); });
 
     $("#envioSelect")?.addEventListener("change", ()=>{ renderCart(); toggleDeliveryRequirements(); });
 
@@ -816,9 +886,26 @@ const AP = (() => {
       if(e.target.name==="pago"){ if (transferInfo) transferInfo.hidden = (e.target.value!=="Transferencia"); }
     });
 
+    // Copiar alias (por si el botón “copiar” está)
+    $("#copyAlias")?.addEventListener("click", async ()=>{
+      const txt = $("#apAliasText")?.textContent?.trim() || '';
+      if (!txt) return;
+      try{
+        await navigator.clipboard.writeText(txt);
+        const ok = $("#aliasCopied");
+        if(ok){ ok.hidden = false; setTimeout(()=> ok.hidden = true, 1500); }
+      }catch(_){ alert('No se pudo copiar el alias.'); }
+    });
+
     form?.addEventListener("submit", async (e)=>{
       e.preventDefault();
       if(CART.length===0){ alert("Tu carrito está vacío."); return; }
+
+      // bloqueo por horario
+      if (!isOpenNow()){
+        alert(`Ahora estamos cerrados. Nuestro horario es ${openHoursText()}.`);
+        return;
+      }
 
       if (SUBMITTING_ORDER) return;
       SUBMITTING_ORDER = true;
@@ -899,8 +986,7 @@ const AP = (() => {
           if (safe(data.telefono))   lineas.push(`* Teléfono: ${safe(data.telefono)}`);
         }
 
-        if (safe(data.obsComida))    lineas.push("", `Obs comida: ${safe(data.obsComida)}`);
-        if (safe(data.obsDomicilio)) lineas.push(`Obs domicilio: ${safe(data.obsDomicilio)}`);
+        if (safe(data.obsComida)) lineas.push("", `Obs comida: ${safe(data.obsComida)}`);
 
         const msg   = encodeURIComponent(lineas.join("\n"));
         const waUrl = `https://wa.me/${EMPLOYEE_WA}?text=${msg}`;
@@ -914,8 +1000,8 @@ const AP = (() => {
             pago:  { metodo: data.pago, alias: TRANSFER.alias, titular: TRANSFER.titular, compa: "+"+TRANSFER.compa },
             items: CART,
             totales: { subtotal, envio, total },
-            obs:   { comida: data.obsComida||"", domicilio: data.obsDomicilio||"" }
-          });
+            obs:   { comida: data.obsComida||"" }
+          }, true);
           if(saved?.id){ orderId = saved.id; }
         }catch(err){ console.error("No se pudo guardar en hoja:", err); }
 
@@ -934,7 +1020,7 @@ const AP = (() => {
   }
 
   /* ==========================
-     14) ADMIN (CRUD + Config)
+     15) ADMIN (CRUD + Config)
      ========================== */
   function renderLoginCard({title="Acceso", onSubmit}){
     const main = document.querySelector("main") || document.body;
@@ -1038,7 +1124,7 @@ const AP = (() => {
             f.envio_s.value = Number(envio.Strobel  ?? ENVIO.Strobel ) || 0;
             f.envio_r.value = Number(envio.retiro   ?? ENVIO.retiro  ) || 0;
 
-            f.alias.value   = transfer.alias   ?? (TRANSFER.alias||"}");
+            f.alias.value   = transfer.alias   ?? (TRANSFER.alias||"");
             f.titular.value = transfer.titular ?? (TRANSFER.titular||"");
             f.compa.value   = transfer.compa   ?? (TRANSFER.compa||"");
           }else{
@@ -1083,9 +1169,7 @@ const AP = (() => {
           if(!res?.ok) throw new Error(res?.error || "No se pudo guardar");
           Object.assign(ENVIO, payload.envio);
           Object.assign(TRANSFER, payload.transfer);
-          localStorage.setItem("AP_CFG_PUSH", JSON.stringify({
-            envio: payload.envio, transfer: payload.transfer, ts: Date.now()
-          }));
+          localStorage.setItem("AP_CFG_PUSH", JSON.stringify({ envio: payload.envio, transfer: payload.transfer, ts: Date.now() }));
           applyConfigToUI();
           alert("Configuración guardada ✔️");
         }catch(err){
@@ -1248,115 +1332,8 @@ const AP = (() => {
   }
 
   /* ==========================
-     15) PANEL COCINA (3 columnas) + Estado abierto/cerrado
+     16) PANEL COCINA (3 columnas)
      ========================== */
-
-  // --- helpers de horario (incluye cierre por feriado/razón y cruce de medianoche) ---
-  function parseHHmm(str="00:00"){
-    const [h,m] = String(str).split(":").map(n=>+n||0);
-    return { h, m, mins: (h*60 + m) };
-  }
-  // Devuelve la razón de cierre para una fecha ISO si existe (acepta array de fechas o mapa fecha->razón)
-  function closedReasonFor(dateISO){
-    const cd = HOURS.closed_dates;
-    if(!cd) return "";
-    if (Array.isArray(cd)){
-      if (!cd.length) return "";
-      if (typeof cd[0] === "string") return cd.includes(dateISO) ? "cerrado" : "";
-      const hit = cd.find(x => (x?.date||x?.day) === dateISO);
-      return hit ? (hit.reason || hit.msg || "cerrado") : "";
-    }
-    if (typeof cd === "object"){
-      const v = cd[dateISO];
-      if (!v) return "";
-      return typeof v === "string" ? v : (v.reason || v.msg || "cerrado");
-    }
-    return "";
-  }
-
-  // Calcula estado abierto/cerrado ahora mismo (considera cruce de día)
-  function computeOpenMeta(now = new Date()){
-    const todayIdx = now.getDay(); // 0=Dom
-    const { h:ho, m:mo, mins:openM }  = parseHHmm(HOURS.open||"19:00");
-    const { h:hc, m:mc, mins:closeM } = parseHHmm(HOURS.close||"23:59");
-    const wraps = closeM <= openM; // ej 19:00 -> 00:00
-
-    // Ventana de hoy
-    const baseToday = new Date(now); baseToday.setHours(0,0,0,0);
-    const startToday = new Date(baseToday); startToday.setHours(ho,mo,0,0);
-    const endToday = new Date(baseToday); endToday.setHours(hc,mc,59,999); if (wraps) endToday.setDate(endToday.getDate()+1);
-    const isOpenDayToday = HOURS.open_days.includes(todayIdx);
-    const todayISOtxt = isoDate(baseToday);
-    const todayReason = closedReasonFor(todayISOtxt);
-
-    // Ventana de ayer (solo si cruza medianoche)
-    let inYesterdayWindow = false;
-    if (wraps){
-      const y = new Date(baseToday); y.setDate(y.getDate()-1);
-      const yIdx = (todayIdx + 6) % 7;
-      const startY = new Date(y); startY.setHours(ho,mo,0,0);
-      const endY = new Date(y); endY.setHours(hc,mc,59,999); endY.setDate(endY.getDate()+1);
-      const yReason = closedReasonFor(isoDate(y));
-      const yIsOpenDay = HOURS.open_days.includes(yIdx);
-      inYesterdayWindow = yIsOpenDay && !yReason && (now >= startY && now <= endY);
-    }
-
-    const inTodayWindow = isOpenDayToday && !todayReason && (now >= startToday && now <= endToday);
-    const open = inTodayWindow || inYesterdayWindow;
-
-    return {
-      open,
-      wraps,
-      isOpenDayToday,
-      opensAt: startToday,
-      closesAt: endToday,
-      reasonToday: todayReason
-    };
-  }
-
-  function isOpenNow(){
-    return computeOpenMeta().open;
-  }
-
-  // HOME: badge al lado del nav (#apOpenBadge)
-  function setOpenBadgeHome(){
-    const badge = $("#apOpenBadge");
-    if(!badge) return;
-    const m = computeOpenMeta();
-    if (m.open){
-      badge.textContent = "Estamos atendiendo";
-      badge.classList.add("ap-open");
-      badge.classList.remove("ap-closed");
-      badge.title = `Horario hoy: ${HOURS.open}–${HOURS.close}`;
-    } else {
-      const txt = m.reasonToday ? `Cerrado — ${m.reasonToday}` : "Cerrado";
-      badge.textContent = txt;
-      badge.classList.add("ap-closed");
-      badge.classList.remove("ap-open");
-      badge.title = m.isOpenDayToday ? `Hoy: ${HOURS.open}–${HOURS.close}` : "Hoy cerrado";
-    }
-  }
-
-  // PANEL: etiqueta simple (#openState) para no romper layout
-  function setOpenStateBadge(){
-    const badge = $("#openState");
-    if(!badge) return;
-    const m = computeOpenMeta();
-    badge.textContent = m.open ? "Abierto" : (m.reasonToday ? "Cerrado (excepción)" : "Cerrado");
-    badge.style.background = m.open ? "#0f2a20" : "#2a1212";
-    badge.style.border = m.open ? "1px solid #1d4c38" : "1px solid #4a1e1e";
-    badge.title = m.open ? `Horario hoy: ${HOURS.open}–${HOURS.close}` : (m.reasonToday || (m.isOpenDayToday ? `Hoy: ${HOURS.open}–${HOURS.close}` : "Hoy cerrado"));
-  }
-
-  // refresco coordinado para ambos (home + panel)
-  let OPEN_BADGE_TIMER = null;
-  function queueOpenBadgesRefresh(){
-    setOpenBadgeHome();
-    setOpenStateBadge();
-    if (OPEN_BADGE_TIMER) clearInterval(OPEN_BADGE_TIMER);
-    OPEN_BADGE_TIMER = setInterval(()=>{ setOpenBadgeHome(); setOpenStateBadge(); }, 60*1000);
-  }
-
   let PANEL = {
     date: todayISO(),
     list: [],
@@ -1382,10 +1359,7 @@ const AP = (() => {
     });
     const autoBtn = $("#autoRefresh");
     if (autoBtn){
-      autoBtn.onclick = ()=>{
-        PANEL.auto = !PANEL.auto;
-        autoBtn.textContent = PANEL.auto ? "Auto ON" : "Auto OFF";
-      };
+      autoBtn.onclick = ()=>{ PANEL.auto = !PANEL.auto; autoBtn.textContent = PANEL.auto ? "Auto ON" : "Auto OFF"; };
       autoBtn.textContent = PANEL.auto ? "Auto ON" : "Auto OFF";
     }
   }
@@ -1419,14 +1393,8 @@ const AP = (() => {
     $("#countPrinted").textContent = String(prints.length);
 
     $$("#listNew .k-row, #listPrinted .k-row").forEach(n=>{
-      n.onclick = ()=>{
-        const id = n.getAttribute("data-id");
-        const o = PANEL.list.find(x=>x.id===id);
-        selectOrder(o);
-      };
+      n.onclick = ()=>{ const id = n.getAttribute("data-id"); const o = PANEL.list.find(x=>x.id===id); selectOrder(o); };
     });
-
-    document.dispatchEvent(new CustomEvent('ap:listsRendered'));
   }
 
   function selectOrder(o){
@@ -1451,7 +1419,7 @@ const AP = (() => {
     $("#selMeta").textContent  = `Hora: ${hhmm} • ${envioTxt}`;
     $("#selItems").textContent = itemsTxt || "(Sin ítems)";
     $("#selTotals").textContent = `Subtotal: ${fmt(subtotal)} • Envío: ${fmt(envio)} • TOTAL: ${fmt(total)}`;
-    $("#selObs").textContent   = (o?.obs?.comida||o?.obs?.domicilio) ? `Obs: ${[o?.obs?.comida,o?.obs?.domicilio].filter(Boolean).join(" | ")}` : "";
+    $("#selObs").textContent   = (o?.obs?.comida) ? `Obs: ${o.obs.comida}` : "";
     $("#selPago").textContent  = o?.pago?.metodo ? `Pago: ${o.pago.metodo}` : "";
 
     $("#btnPrint").onclick = ()=> printOrder(o, 2, true);
@@ -1459,7 +1427,6 @@ const AP = (() => {
     $("#btnMarkPrinted").onclick = ()=> markPrinted(o);
   }
 
-  // Impresión estilo WhatsApp (sin alias/titular en Transferencia)
   function printOrder(o, copies=2, mark=true){
     const area = document.getElementById("printArea");
     if(!area){ alert("No hay área de impresión (#printArea). Revisá el HTML."); return; }
@@ -1497,8 +1464,7 @@ const AP = (() => {
       ? `<div>Pago: ${pago}</div>${pago==="Transferencia" ? `<div>Comprobantes: ${o?.pago?.compa || ("+"+TRANSFER.compa)}</div>` : ""}`
       : "";
 
-    const obsHtml =
-      `${o?.obs?.comida ? `<div>Obs comida: ${o.obs.comida}</div>`:""}${o?.obs?.domicilio ? `<div>Obs domicilio: ${o.obs.domicilio}</div>`:""}`;
+    const obsHtml = o?.obs?.comida ? `<div>Obs comida: ${o.obs.comida}</div>` : "";
 
     const datosEntrega = (o?.envio?.tipo === "retiro")
       ? `<div>Datos de retiro:</div>
@@ -1544,18 +1510,6 @@ const AP = (() => {
     }catch(e){
       alert("No autorizado o error al marcar impreso.");
       if(/unauthorized|invalid/i.test(String(e?.message||""))) { clearToken(); location.reload(); }
-    }finally{
-      try{
-        const day = PANEL.date;
-        const kDay = `AP_PRINTED_${day}`;
-        const kAll = 'AP_PRINTED_ALL';
-        const perDay = new Set(JSON.parse(localStorage.getItem(kDay)||'[]'));
-        const all    = new Set(JSON.parse(localStorage.getItem(kAll)||'[]'));
-        perDay.add(o.id); all.add(o.id);
-        localStorage.setItem(kDay, JSON.stringify([...perDay]));
-        localStorage.setItem(kAll, JSON.stringify([...all]));
-      }catch(_){}
-      document.dispatchEvent(new CustomEvent('ap:printed', { detail:{ id:o.id } }));
     }
   }
 
@@ -1591,7 +1545,7 @@ const AP = (() => {
   }
 
   /* ==========================
-     16) INICIALIZACIÓN (home)
+     17) INICIALIZACIÓN (home)
      ========================== */
   async function bootHome(){
     await Promise.all([loadConfig(), loadProducts()]);
@@ -1599,33 +1553,24 @@ const AP = (() => {
     renderTabs();
     renderCart();
     bindCheckout();
-    // primer pintado del badge + refrescos periódicos
     queueOpenBadgesRefresh();
 
-    $("#copyAlias")?.addEventListener("click", async ()=>{
-      const txt = $("#apAliasText")?.textContent?.trim() || '';
-      if (!txt) return;
-      try{
-        await navigator.clipboard.writeText(txt);
-        const ok = document.getElementById('aliasCopied');
-        if(ok){ ok.hidden = false; setTimeout(()=> ok.hidden = true, 1500); }
-      }catch(_){ alert('No se pudo copiar el alias.'); }
-    });
+    // Abrir directo si la URL viene con #carrito
+    if (location.hash === "#carrito") openCart(true);
   }
 
-  // Exponer API pública de este módulo
+  // Exponer API
   return {
     login, ensureAuth,
     renderCart,
     renderAdmin, renderPanel,
     applyConfigToUI,
     bootHome,
-    // helpers por si necesitás usarlos afuera
     isOpenNow
   };
 })();
 
-// ⬅️⬅️⬅️ CLAVE: exponer AP al global para que window.AP?.xxx funcione
+// Global
 window.AP = AP;
 
 // Auto-boot según página

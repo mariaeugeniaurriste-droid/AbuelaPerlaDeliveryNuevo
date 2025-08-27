@@ -1,25 +1,19 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
-    { "source": "/panel", "destination": "/panel.html" },
-    { "source": "/admin", "destination": "/admin.html" }
-  ],
   "headers": [
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
-    },
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "no-referrer-when-downgrade" },
-        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/carrito", "destination": "/" }
+  ],
+  "redirects": [
+    { "source": "/panel", "destination": "/panel.html", "statusCode": 308 },
+    { "source": "/admin", "destination": "/admin.html", "statusCode": 308 }
   ]
 }
