@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel de Cocina • Abuela Perla</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ====== Layout 3 columnas ====== */
+    .kitchen-wrap{ display:grid; gap:12px; padding:12px; max-width:1400px; margin:0 auto; grid-template-columns: 1fr 1.4fr 1fr; }
+    .k-col{ background:#12141b; border:1px solid #272b3b; border-radius:14px; min-height:70vh; display:flex; flex-direction:column; }
+    .k-head{ padding:.7rem .9rem; border-bottom:1px solid #272b3b; display:flex; gap:.5rem; align-items:center; justify-content:space-between; }
+    .k-title{ font-weight:800; letter-spacing:.3px; }
+    .k-body{ padding:.6rem; overflow:auto; flex:1; display:flex; flex-direction:column; gap:.4rem; }
+    .k-foot{ padding:.6rem .8rem; border-top:1px solid #272b3b; display:flex; gap:.5rem; align-items:center; justify-content:space-between; }
+
+    .k-row{ display:grid; grid-template-columns: auto 1fr auto; gap:.55rem; align-items:center; background:#0f121a; border:1px solid #23273a; border-radius:10px; padding:.45rem .55rem; cursor:pointer; }
+    .k-row:hover{ border-color:#3b4260; background:#131827; }
+    .k-id{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; opacity:.9; }
+    .k-time{ opacity:.8; font-size:.92rem; }
+    .k-total{ font-weight:700; }
+    .k-muted{ opacity:.7; font-size:.9rem; }
+
+    .k-ticket{ background:#0f121a; border:1px solid #23273a; border-radius:14px; padding:.8rem; }
+    .k-ticket h3{ margin:.1rem 0 .35rem 0; }
+    .k-meta{ opacity:.88; font-size:.92rem; }
+    .k-items{ background:#0b0e15; border:1px dashed #2a3046; border-radius:10px; padding:.6rem; white-space:pre-wrap; margin:.6rem 0; }
+    .k-total-line{ font-size:1.05rem; font-weight:800; }
+
+    .k-btn{ appearance:none; border:1px solid #2a2f41; background:#1a1f2f; color:#e8eaf2; padding:.45rem .7rem; border-radius:10px; cursor:pointer; }
+    .k-btn:hover{ background:#202640; border-color:#3a4260; }
+    .k-btn--primary{ background:#2a64ff; border-color:#2a64ff; color:#fff; font-weight:700; }
+    .k-btn--danger{ background:#6b1d28; border-color:#7a2531; color:#fff; }
+
+    .k-badge{ font-size:.85rem; padding:.15rem .45rem; border-radius:999px; border:1px solid #2a2f41; background:#151a28; }
+    .k-toolbar{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; padding:10px; justify-content:center; }
+    .k-toolbar input[type="date"]{ background:#12141b; border:1px solid #2a2f41; color:#e8eaf2; padding:.35rem .5rem; border-radius:8px; }
+
+    #printArea{ display:none; }
+    @media print{
+      body *{ visibility:hidden; }
+      #printArea, #printArea *{ visibility:visible; }
+      #printArea{ position:absolute; left:0; top:0; width:100%; display:block; padding:8px; background:#fff; color:#000; }
+      .print-ticket{ page-break-inside:avoid; border:1px dashed #000; margin:8px; padding:6px; }
+      .print-ticket h2{ margin:0 0 4px 0; }
+      .print-sep{ border-top:1px dashed #000; margin:6px 0; }
+      .small{ font-size:12px; }
+      .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      pre{ font-size:13px; }
+    }
+    @media (max-width: 1100px){ .kitchen-wrap{ grid-template-columns: 1fr; } .k-col{ min-height:auto; } }
+  </style>
+
+  <!-- Mata cualquier Service Worker en LOCAL para evitar cacheos raros -->
+  <script>
+  (function killSWInLocal(){
+    if (!('serviceWorker' in navigator)) return;
+    var isLocal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    if (!isLocal) return;
+    navigator.serviceWorker.getRegistrations()
+      .then(rs => Promise.all(rs.map(r => r.unregister()))).catch(()=>{});
+    if (window.caches && caches.keys) {
+      caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(()=>{});
+    }
+    navigator.serviceWorker.getRegistration && navigator.serviceWorker.getRegistration().then(reg=>{
+      try{ reg && reg.active && reg.active.postMessage({ type:'AP_KILL_ME' }); }catch(_){}
+    });
+  })();
+  </script>
+</head>
+<body>
+  <header class="ap-topbar">
+    <a class="ap-admin-link" href="index.html">← Volver</a>
+    <h1 class="ap-brand">Panel de Cocina</h1>
+    <span class="k-badge" id="openState">Cargando…</span>
+  </header>
+
+  <div class="k-toolbar">
+    <label>Fecha: <input type="date" id="dayPicker"/></label>
+    <button id="btnRefresh" class="k-btn">Actualizar</button>
+    <button id="btnCleanDay" class="k-btn k-btn--danger" title="Archiva las comandas del día (no se pierden, se ocultan del panel)">Archivar día</button>
+    <button id="autoRefresh" class="k-btn">Auto ON</button>
+  </div>
+
+  <section class="kitchen-wrap" id="kitchen">
+    <div class="k-col" id="colLeft">
+      <div class="k-head">
+        <div class="k-title">Ingresando</div>
+        <span class="k-badge" id="countNew">0</span>
+      </div>
+      <div class="k-body" id="listNew"></div>
+      <div class="k-foot"><small class="k-muted">Click para ver/imprimir</small><span></span></div>
+    </div>
+
+    <div class="k-col">
+      <div class="k-head"><div class="k-title">Seleccionada</div></div>
+      <div class="k-body">
+        <article id="selectedBox" class="k-ticket" hidden>
+          <h3 id="selTitle"></h3>
+          <div class="k-meta" id="selMeta"></div>
+          <pre class="k-items" id="selItems"></pre>
+          <div class="k-total-line" id="selTotals"></div>
+          <div class="k-meta" id="selObs"></div>
+          <div class="k-meta" id="selPago"></div>
+          <div style="display:flex; gap:.5rem; margin-top:.6rem">
+            <button id="btnPrint" class="k-btn k-btn--primary">Imprimir x2</button>
+            <button id="btnMarkPrinted" class="k-btn">Marcar impreso</button>
+            <button id="btnReprint" class="k-btn">Reimprimir</button>
+          </div>
+        </article>
+        <div id="emptyCenter" class="k-muted">Elegí una comanda de la izquierda…</div>
+      </div>
+      <div class="k-foot"><small class="k-muted">Siempre podés reimprimir</small><span></span></div>
+    </div>
+
+    <div class="k-col">
+      <div class="k-head">
+        <div class="k-title">Impresas</div>
+        <span class="k-badge" id="countPrinted">0</span>
+      </div>
+      <div class="k-body" id="listPrinted"></div>
+      <div class="k-foot"><small class="k-muted">Click para reimprimir</small><span></span></div>
+    </div>
+  </section>
+
+  <div id="printArea" aria-hidden="true"></div>
+
+  <!-- Fuerza recarga del JS -->
+  <script src="app.js?v=8"></script>
+
+  <!-- (1) Reingreso como ADMIN para archivar día -->
+  <script>
+  (function forceAdminForArchive(){
+    const TOKEN_KEY = "AP_ADMIN_TOKEN";
+    const btn = document.getElementById('btnCleanDay');
+    if (!btn) return;
+    btn.addEventListener('click', (ev)=>{
+      // Pedimos reingreso como admin ANTES de que app.js mande la acción
+      const ok = confirm('Para "Archivar día" necesitás ingresar como ADMIN. ¿Reingresar ahora?');
+      if (!ok) return;
+      try { localStorage.removeItem(TOKEN_KEY); } catch(_){}
+      if (window.AP && typeof AP.ensureAuth === 'function') {
+        ev.stopImmediatePropagation?.();
+        ev.preventDefault();
+        AP.ensureAuth('panel.html'); // abre el login; después volvés a tocar "Archivar día"
+      }
+    }, true);
+  })();
+  </script>
+
+  <!-- (2) Sticky: impresas a la derecha (sin pelearse con app.js) -->
+  <script>
+  (function stickyPrinted(){
+    const $  = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+    const toISO = d => new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+    const todayISO = () => toISO(new Date());
+    const DAYKEY = d => `AP_PRINTED_${d}`;
+    const ALLKEY = 'AP_PRINTED_ALL';
+
+    const readSet  = k => { try{ const a=JSON.parse(localStorage.getItem(k)||'[]'); return new Set(Array.isArray(a)?a:[]);}catch(_){return new Set();} };
+    const writeSet = (k,set) => { try{ localStorage.setItem(k, JSON.stringify([...set])); }catch(_){} };
+
+    function getDay(){
+      const inp = $('#dayPicker');
+      const v = inp && inp.value;
+      return (v && /^\d{4}-\d{2}-\d{2}$/.test(v)) ? v : todayISO();
+    }
+    function idFromNode(n){
+      const m = (n?.textContent||'').match(/AP-\d+/i);
+      return m ? m[0] : '';
+    }
+    function listedNewIds(){
+      return $$('#listNew > *').map(idFromNode).filter(Boolean);
+    }
+    function moveToPrinted(ids){
+      if (!ids.length) return;
+      const map = new Map();
+      $$('#listNew > *').forEach(n => { const id=idFromNode(n); if (id) map.set(id,n); });
+      const dst = $('#listPrinted');
+      ids.forEach(id => { const n = map.get(id); if (n && dst) dst.appendChild(n); });
+      updateCounters();
+    }
+    function updateCounters(){
+      const cNew = $('#countNew'), cPrn = $('#countPrinted');
+      if (cNew) cNew.textContent = ($('#listNew')?.children.length||0);
+      if (cPrn) cPrn.textContent = ($('#listPrinted')?.children.length||0);
+    }
+
+    function sweep(){
+      const day  = getDay();
+      const perDay = readSet(DAYKEY(day));
+      const all    = readSet(ALLKEY);
+      const leftIds = listedNewIds();
+      const want = new Set([...perDay, ...leftIds.filter(id => all.has(id))]);
+      moveToPrinted([...want]);
+    }
+
+    // app.js dispara estos eventos
+    document.addEventListener('ap:listsRendered', sweep);
+    document.addEventListener('ap:printed',   (e)=> moveToPrinted([e.detail?.id].filter(Boolean)));
+
+    // Primer barrido al cargar
+    setTimeout(sweep, 400);
+    setTimeout(sweep, 1500);
+  })();
+  </script>
+  <!-- app.js auto-detecta panel.html y arranca solo -->
+</body>
+</html>

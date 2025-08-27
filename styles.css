@@ -1,232 +1,821 @@
+/* =========================================================
+   Abuela Perla – styles.css (paleta mostaza / ocre)
+   Requiere:
+   - assets/bannerpizarra.png
+   - assets/banner-celu-texto.png (versión móvil con texto horneado)
+   ========================================================= */
+
 :root{
-  --violeta:#5A2EA6;
-  --violeta-2:#6f46c3;
-  --violeta-3:#8a6ee0;
-  --gris:#f6f6fb;
-  --borde:#ececf3;
-  --txt:#141414;
-  --error:#e53935;
-  --bg:#ffffff;
-  --glass: 12px;
+  /* Base */
+  --bg:#0d0d0f;
+  --surface:#131316;
+  --surface-2:#1a1b1e;
+  --text:#f2f3f5;
+  --muted:#a1a1aa;
+  --ok:#10b981;
+  --warn:#f59e0b;
+  --danger:#ef4444;
+
+  /* Marca (mostaza/ocre) */
+  --brand:#eab308;
+  --brand-2:#d97706;
+  --brand-rgb:234,179,8;
+
+  /* FX */
+  --ring: 0 0 0 2px rgba(var(--brand-rgb), .38);
+  --radius:16px;
+  --radius-sm:12px;
+  --shadow: 0 10px 30px rgba(0,0,0,.3);
+
+  /* Header */
+  --header-h: clamp(60px, 7vw, 80px);
 }
 
+/* ========= Reset mínimo ========= */
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;
-  color:var(--txt);
-  background:
-    radial-gradient(1200px 600px at 10% -20%, rgba(90,46,166,.08), transparent 60%),
-    radial-gradient(1000px 600px at 110% 10%, rgba(111,70,195,.08), transparent 60%),
-    #fff;
-  font-family: Inter, system-ui, Roboto, Arial, sans-serif;
-  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  background:var(--bg);
+  color:var(--text);
+  font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial;
+  padding-top: var(--header-h); /* deja espacio al header fijo */
 }
+img{max-width:100%; display:block}
 
-/* Layout util */
-.ap-wrap{max-width:1120px;margin:auto;padding:12px}
-
-/* Header */
+/* ========= Header fijo ========= */
 .ap-header{
-  position:sticky;top:0;z-index:20;background:rgba(255,255,255,.75);
-  backdrop-filter:saturate(1.3) blur(10px);
-  border-bottom:1px solid var(--borde);
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  height: var(--header-h);
+  display:flex; align-items:center; gap:.75rem;
+  padding:.6rem .9rem;
+  background: rgba(10,12,18,.85);
+  backdrop-filter: blur(6px);
+  border-bottom:1px solid #1d2232;
 }
-.ap-brand{display:flex;align-items:center;gap:14px;padding-block:8px}
-.ap-logo{height:100px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,.08))}
-.ap-headings h1{
-  font-size:28px;margin:0 0 4px 0;color:var(--violeta);font-weight:800;letter-spacing:.2px;
+.ap-header__title{display:flex; align-items:center; min-width:0; overflow:hidden}
+.ap-header__title img{
+  height: calc(var(--header-h) - 18px);
+  width:auto; object-fit:contain; object-position:left center;
+  max-width:min(60vw, 360px);
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.25));
 }
-.ap-subtitle{margin:0;color:#555;font-size:13px;line-height:1.4}
+.ap-header__actions{margin-left:auto; display:flex; align-items:center; gap:.5rem}
 
-/* Pills */
-.ap-pillbar{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:10px}
-.ap-pillbar button{
-  appearance:none;cursor:pointer;border-radius:999px;border:1px solid var(--borde);
-  padding:8px 14px;background:var(--gris);font-weight:600;transition:all .2s ease;
+/* Nav escritorio */
+.ap-header__nav{
+  display:none; align-items:center; gap:.6rem; margin-left:.6rem;
 }
-.ap-pillbar button:hover{transform:translateY(-1px)}
-.ap-pillbar .active{background:var(--violeta);color:#fff;border-color:var(--violeta)}
-
-/* Main */
-.ap-main{display:grid;grid-template-columns:1fr;gap:18px}
-@media(min-width:980px){.ap-main{grid-template-columns:2fr 1fr}}
-
-/* Grid catálogo */
-.ap-grid{
-  display:grid;gap:14px;
-  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+.ap-header__nav a{
+  text-decoration:none; color:#e7e9ef; opacity:.9;
+  padding:.35rem .7rem; border:1px solid #2a2f3f; border-radius:999px;
+  background:#151823; font-size:14px;
 }
+.ap-header__nav a:hover{ background:#1b1f2d; border-color:#3a4057; opacity:1; }
 
-/* Card producto */
-.ap-card{
-  background:#fff;border:1px solid var(--borde);
-  border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;
-  box-shadow:0 5px 20px rgba(16,0,48,.06);
-  transition:box-shadow .2s ease, transform .2s ease;
-}
-.ap-card:hover{box-shadow:0 10px 28px rgba(16,0,48,.10);transform:translateY(-2px)}
-.ap-card h3{margin:0;font-size:15px;font-weight:700}
-.ap-price{font-weight:800}
-.ap-help{font-size:12px;color:#666;margin-top:-6px}
-
-/* Inputs */
-.ap-field{display:grid;gap:6px}
-select,textarea,input{
-  width:100%;padding:10px 12px;border:1px solid var(--borde);
-  border-radius:12px;background:#fff;font:inherit;
-}
-textarea{resize:vertical;min-height:84px}
-
-/* Botones y chips */
+/* Acciones / botones del header */
 .ap-btn{
-  cursor:pointer;border:0;border-radius:12px;padding:10px 14px;font-weight:700;
-  transition:transform .08s ease, box-shadow .2s ease;
+  --bg: var(--surface-2); --bd:#2b2b31; --fg:var(--text);
+  appearance:none; border:1px solid var(--bd); background:var(--bg); color:var(--fg);
+  padding:.6rem .9rem; border-radius:12px; cursor:pointer;
 }
-.ap-btn:active{transform:translateY(1px)}
-.ap-primary{background:linear-gradient(180deg, var(--violeta), var(--violeta-2));color:#fff;box-shadow:0 6px 18px rgba(90,46,166,.25)}
-.ap-primary:hover{filter:saturate(1.05) brightness(1.02)}
-.ap-ghost{background:#fff;border:1px solid var(--borde)}
-.ap-chip{
-  display:inline-flex;align-items:center;gap:8px;border:1px solid var(--borde);
-  padding:7px 12px;border-radius:999px;background:#fff;user-select:none
+.ap-btn--pill{ border-radius:999px; display:inline-flex; align-items:center; gap:.45rem }
+.ap-btn--ghost{ background:transparent }
+.ap-btn--primary{
+  --bg: linear-gradient(180deg, var(--brand), var(--brand-2)); --bd:transparent; color:#fff;
+  text-shadow:0 1px 0 rgba(0,0,0,.18);
 }
-.ap-chip input{accent-color:var(--violeta)}
+.ap-btn--primary:hover{ filter:saturate(1.05); box-shadow:0 10px 22px rgba(var(--brand-rgb), .28) }
+.ap-btn--lg{ padding:.9rem 1rem; font-weight:700 }
+
+@media (min-width:1024px){
+  #openMenu{ display:none }
+  .ap-header__nav{ display:flex }
+}
+
+/* ========= Contenedor principal ========= */
+.ap-container{ width:min(1150px, 100%); margin:0 auto; padding:0 1rem 2rem }
+
+/* ========= Banner (desktop: texto + pizarra / móvil: imagen con texto) ========= */
+.ap-hero-banner{
+  position:relative;
+  width:min(1150px, 100%);
+  margin:10px auto 14px;
+  min-height: clamp(200px, 32vw, 340px);
+  border-radius:16px; overflow:hidden;
+  border:1px solid #23283a;
+  background: url("assets/bannerpizarra.png") center / cover no-repeat, #0e1118;
+  display:grid; place-items:center;
+  box-shadow: var(--shadow);
+}
+.ap-hero-banner::after{
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse at center, rgba(0,0,0,.15), rgba(0,0,0,.6) 60%),
+    linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.55));
+}
+.ap-hero__content{ position:relative; text-align:center; padding:1.1rem 1.25rem; max-width:920px; color:#fff }
+.ap-hero__content h1{
+  margin:0 0 .35rem; font-weight:900;
+  font-size:clamp(22px, 4.2vw, 40px);
+  text-shadow:0 3px 18px rgba(0,0,0,.75), 0 0 2px rgba(255,255,255,.15);
+}
+.ap-hero__content p{
+  margin:0; opacity:.98; font-size:clamp(14px,1.55vw,16px); line-height:1.35;
+  text-shadow:0 2px 14px rgba(0,0,0,.7);
+}
+.ap-hero__img-mobile{ display:none; width:100%; height:auto; border-radius:16px; object-fit:cover }
+
+@media (max-width:560px){
+  .ap-hero-banner{ background:none; min-height:unset; padding:0 }
+  .ap-hero-banner::after{ display:none }
+  .ap-hero__content{ display:none }
+  .ap-hero__img-mobile{ display:block }
+}
+
+/* ========= Tabs de categorías ========= */
+.ap-tabs{
+  max-width:1080px; margin:.75rem auto 1.1rem; padding:.25rem;
+  display:flex; flex-wrap:wrap; gap:.6rem; justify-content:center;
+}
+.ap-tabs button{
+  border:1px solid #242838; color:var(--text); background:#0f1117;
+  padding:.65rem 1rem; border-radius:9999px; cursor:pointer; font-weight:600;
+  line-height:1.1; transition:transform .06s ease, background .15s ease, border-color .15s ease;
+  white-space:nowrap;
+}
+.ap-tabs button:hover{ transform:translateY(-1px) }
+.ap-tabs button.active{
+  background:linear-gradient(180deg, var(--brand), var(--brand-2));
+  border-color:transparent; color:#fff;
+  box-shadow:0 8px 18px rgba(var(--brand-rgb), .25);
+}
+
+/* Móvil: 2 por fila, altura uniforme (hasta 2 líneas) */
+@media (max-width:640px){
+  .ap-tabs{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:.6rem; padding:0 .6rem }
+  .ap-tabs button{
+    width:100%; min-height:56px; text-align:center;
+    white-space:normal; line-height:1.2; font-size:.95rem;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+}
+@media (max-width:360px){
+  .ap-tabs{ grid-template-columns:1fr }
+  .ap-tabs button{ min-height:60px; font-size:.92rem }
+}
+
+/* ========= Grid de productos / Cards ========= */
+.ap-grid{ display:grid; gap:1rem; grid-template-columns: repeat( auto-fill, minmax(280px, 1fr) ) }
+.ap-card{
+  background:var(--surface);
+  border:1px solid #232329;
+  border-radius:var(--radius);
+  padding:1rem;
+  box-shadow:var(--shadow);
+}
+.ap-card--section{ margin-top:1rem }
+.ap-card-title{ margin:0; font-size:1rem }
+.ap-card-desc{ margin:.15rem 0 0; color:var(--muted); font-size:.9rem }
+
+/* Producto */
+.ap-product__head{ display:flex; gap:.8rem; align-items:center }
+.ap-avatar{
+  width:56px; height:56px; flex:0 0 56px; overflow:hidden;
+  border-radius:12px; background:var(--surface-2); display:grid; place-items:center;
+}
+.ap-avatar .ap-thumb{ width:100%; height:100%; object-fit:contain; pointer-events:none }
+
+.ap-product__price{ margin-top:.5rem }
+.ap-price{ font-weight:700 }
 
 /* Qty */
-.ap-qty{display:flex;align-items:center;gap:10px}
-.ap-qty .ap-num{min-width:24px;text-align:center;font-weight:800}
-.ap-qty .ap-ghost{padding:6px 10px}
-
-/* Carrito (glass) */
-.ap-cart{
-  position:sticky;top:96px;border:1px solid rgba(255,255,255,.6);
-  border-radius:18px;padding:16px;background:rgba(255,255,255,.75);
-  backdrop-filter:saturate(1.2) blur(10px);
-  box-shadow:0 10px 28px rgba(16,0,48,.08);
+.ap-qty{ display:flex; align-items:center; gap:.4rem }
+.ap-qty-btn{
+  width:30px; height:30px; border-radius:999px; border:1px solid #2b2b31;
+  background:var(--surface-2); color:var(--text); cursor:pointer;
 }
-.ap-cart-title{margin:0 0 8px}
-.ap-cart-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.ap-cart-list li{border:1px dashed var(--borde);border-radius:12px;padding:8px}
-
-.ap-line{display:flex;justify-content:space-between;gap:10px;align-items:center}
-.ap-tot{border-top:1px solid var(--borde);margin-top:12px;padding-top:12px;display:grid;gap:8px}
-.ap-grand{font-size:18px;font-weight:800}
-
-.ap-sec{border-top:1px solid var(--borde);margin-top:14px;padding-top:14px;display:grid;gap:10px}
-.ap-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-
-.ap-transfer{background:#f7f4ff;border:1px solid var(--violeta);padding:10px;border-radius:12px;font-size:14px}
-
-.ap-notes{min-height:90px}
-
-.ap-actions{display:flex;gap:10px;justify-content:space-between}
-
-/* Estados */
-.ap-hide{display:none}
-.ap-error{border-color:var(--error)!important;background:#fff8f8}
-.ap-alert{
-  border:1px solid var(--error);background:#fff2f2;color:#a40000;
-  border-radius:12px;padding:10px;font-size:14px;margin-top:6px
-}
-/* Ocultar logo solo en la tienda */
-.store .ap-logo { display: none !important; }
-
-/* Ajustes de header cuando no hay logo */
-.store .ap-brand { gap: 8px; }
-.store .ap-headings h1 { font-size: 24px; line-height: 1.2; }
-.store .ap-subtitle { margin-top: 2px; font-size: 13px; color: #666; }
-/* ===== Tienda sin logo: más aire en el header ===== */
-.store .ap-header .ap-brand{
-  padding-block: 22px;           /* más alto porque no hay logo */
-  justify-content: center;       /* centrado */
+.ap-qty-btn:hover{ border-color:var(--brand); background: rgba(var(--brand-rgb), .10) }
+.ap-qty-input{
+  width:44px; text-align:center; border-radius:10px; border:1px solid #2b2b31;
+  background:var(--surface-2); color:var(--text); padding:.35rem;
 }
 
-.store .ap-headings{
-  text-align: center;            /* centra título y subtítulo */
+/* Forms */
+.ap-label{ display:block; font-size:.9rem; color:var(--muted); margin:.6rem 0 .3rem }
+.ap-label > input, .ap-label > textarea, .ap-select{
+  width:100%; background:var(--surface-2); color:var(--text);
+  border:1px solid #2b2b31; border-radius:12px; padding:.6rem .7rem; outline:none;
+}
+.ap-label > input:focus, .ap-label > textarea:focus, .ap-select:focus{ box-shadow:var(--ring); border-color:var(--brand-2) }
+.ap-select{ appearance:none; background-image:linear-gradient(45deg,transparent 50%,#aaa 50%),linear-gradient(135deg,#aaa 50%,transparent 50%); background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px); background-size:5px 5px,5px 5px; background-repeat:no-repeat }
+
+/* Radios */
+.ap-radio-group{ display:flex; gap:1rem; margin:.25rem 0 .75rem }
+.ap-radio{ display:flex; align-items:center; gap:.45rem; padding:.4rem .6rem; border:1px solid #2b2b31; border-radius:999px; cursor:pointer; user-select:none; background:var(--surface-2) }
+.ap-radio input{ accent-color:var(--brand) }
+
+/* Helpers */
+.ap-row{ display:flex; align-items:center }
+.ap-row--between{ justify-content:space-between }
+.ap-row--end{ justify-content:flex-end }
+.ap-gap{ gap:.6rem }
+.ap-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:.75rem }
+.ap-mt-2{ margin-top:.6rem }
+
+/* ========= Carrito (drawer derecha, debajo del header) ========= */
+.ap-drawer{
+  position: fixed; inset:0; pointer-events:none; z-index:110; display:flex; justify-content:flex-end;
+}
+.ap-drawer[aria-hidden="true"] .ap-drawer__panel{ transform: translateX(102%) }
+.ap-drawer[aria-hidden="false"]{ pointer-events:auto }
+.ap-drawer__panel{
+  width:min(420px, 100%); height: calc(100vh - var(--header-h));
+  margin-top: var(--header-h);
+  background:var(--bg); border-left:1px solid #232329;
+  transform: translateX(0); transition: transform .22s ease-out;
+  display:flex; flex-direction:column;
+  box-shadow: -28px 0 48px rgba(0,0,0,.35);
+}
+.ap-drawer__header{
+  display:flex; align-items:center; justify-content:space-between; gap:.5rem;
+  padding:1rem; border-bottom:1px solid #232329; position:sticky; top:0; background:inherit; z-index:2;
+}
+.ap-drawer__body{ padding:1rem; overflow-y:auto; height:100% }
+
+/* Drawer izquierdo para menú móvil */
+.ap-drawer--left .ap-drawer__panel{ left:0; right:auto; transform:translateX(-102%) }
+.ap-drawer--left[aria-hidden="false"] .ap-drawer__panel{ transform:translateX(0) }
+
+/* Items carrito */
+.ap-cart .ap-cart-item{
+  display:grid; grid-template-columns: 1fr auto auto; gap:.5rem; align-items:center;
+  padding:.5rem; border-bottom:1px dashed #2b2b31;
+}
+.ap-cart .ap-cart-item:last-child{ border-bottom:0 }
+.ap-cart .ap-ghost{ background:transparent; border:1px solid #2b2b31; border-radius:8px; padding:.25rem .5rem; cursor:pointer }
+
+/* Totales */
+.ap-total{ margin-top:.5rem; padding-top:.5rem; border-top:1px solid #232329; font-size:1.05rem }
+
+/* Alert transferencia */
+.ap-alert{ background:#0f172a; border:1px solid #1e293b; padding:.6rem .7rem; border-radius:12px }
+
+/* Responsive general */
+@media (max-width: 860px){
+  .ap-grid{ grid-template-columns:1fr }
+  .ap-drawer__panel{ width:100% }
+  .ap-container{ padding-bottom:5rem }
 }
 
-.store #mainTitle{
-  font-size: 28px;
-  line-height: 1.2;
-  margin: 0 0 8px;
-  letter-spacing: .2px;
+/* ========= Toast (sólo botones; el contenedor lo inyecta el JS) ========= */
+.ap-toast .ap-primary{
+  appearance:none; border:0; border-radius:999px; padding:.65rem 1rem; font-weight:700; letter-spacing:.2px; color:#fff; cursor:pointer;
+  background:linear-gradient(180deg, var(--brand), var(--brand-2));
+  box-shadow:0 8px 18px rgba(var(--brand-rgb), .32), inset 0 1px 0 rgba(255,255,255,.12);
+  transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+}
+.ap-toast .ap-primary:hover{ transform:translateY(-1px); filter:saturate(1.05) }
+.ap-toast .ap-primary:active{ transform:none }
+.ap-toast .ap-ghost{
+  border:1px dashed #2c2f44; border-radius:12px; padding:.6rem .9rem; color:#cfd3e6; background:transparent;
+}
+.ap-toast .ap-ghost:hover{ background:rgba(var(--brand-rgb), .10); border-color:var(--brand); color:#fff }
+
+@media (max-width:480px){
+  .ap-toast{ left:12px; right:12px; transform:none; justify-content:space-between; flex-wrap:wrap; gap:.6rem }
+  .ap-toast .ap-primary{ padding:.55rem .85rem; font-size:.92rem; min-width:110px }
+  .ap-toast .ap-ghost{ padding:.5rem .75rem; font-size:.92rem }
 }
 
-.store .ap-subtitle{
-  font-size: 15px;
-  line-height: 1.45;
-  color: #555;
-  margin: 4px 0 2px;             /* separa del título */
+/* ========= Empanadas – Modal ========= */
+:root{
+  --ap-surface: var(--surface);
+  --ap-surface-2: var(--surface-2);
+  --ap-border:#25283a;
+  --ap-primary: var(--brand);
+  --ap-primary-600: var(--brand-2);
+  --ap-text: var(--text);
+  --ap-muted:#a1a7b7;
+}
+.ap-modal{
+  position:fixed; inset:0; z-index:120; display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.55); backdrop-filter: blur(2px);
+}
+.ap-modal__card{
+  width:min(760px, 92vw); max-height:90vh; overflow:hidden; display:flex; flex-direction:column;
+  background:var(--ap-surface); border:1px solid var(--ap-border); border-radius:16px; box-shadow:var(--shadow);
+  padding:.75rem .9rem;
+}
+.ap-modal__card h3{ margin:.25rem 0 .5rem; font-size:1.15rem }
+.ap-badge{
+  display:inline-block; margin:.25rem 0 .6rem; padding:.25rem .6rem; font-size:.85rem; color:var(--ap-muted);
+  background:#0f172a; border:1px solid #1e293b; border-radius:999px;
+}
+.ap-flavors{ display:grid; gap:.6rem; grid-template-columns:1fr; padding-right:.25rem; overflow:auto }
+@media (min-width:560px){ .ap-flavors{ grid-template-columns:1fr 1fr } }
+.ap-flavor{
+  display:grid; grid-template-columns:1fr auto; align-items:center; gap:.75rem;
+  background:var(--ap-surface-2); border:1px solid var(--ap-border); border-radius:14px; padding:.7rem .8rem;
+  transition:border-color .2s ease, transform .06s ease;
+}
+.ap-flavor:hover{ border-color:var(--ap-primary-600); transform:translateY(-1px) }
+.ap-flavor > div:first-child{ font-weight:600; color:var(--ap-text) }
+.ap-qty{ display:inline-flex; align-items:center; gap:.35rem }
+.ap-qty-input{ width:44px; text-align:center; border:0; border-radius:10px; background:transparent; color:var(--ap-text); font-weight:700 }
+.ap-qty-btn{
+  width:36px; height:36px; border-radius:999px; display:grid; place-items:center;
+  background:transparent; color:var(--ap-text); border:1px solid var(--ap-border); font-size:18px; line-height:1;
+  transition:background .15s ease, border-color .15s ease, transform .05s ease;
+}
+.ap-qty-btn:hover{ background:rgba(var(--brand-rgb), .09); border-color:var(--ap-primary) }
+.ap-qty-btn:disabled{ opacity:.45; cursor:not-allowed }
+.ap-total{ margin:.65rem 0 .5rem; padding:.6rem .75rem; border:1px dashed var(--ap-border); background:linear-gradient(180deg, rgba(var(--brand-rgb), .07), transparent); border-radius:12px }
+.ap-modal__foot{ margin-top:.5rem; padding-top:.6rem; display:flex; justify-content:flex-end; gap:.6rem; border-top:1px solid var(--ap-border); background:linear-gradient(180deg, transparent, rgba(0,0,0,.08)); position:sticky; bottom:0 }
+.ap-btn--primary.ap-add, .ap-card .ap-add{ background:var(--brand); border-color:var(--brand); color:#fff }
+.ap-card .ap-add:hover{ background:var(--brand-2); border-color:var(--brand-2) }
+
+.ap-modal button:focus-visible, .ap-modal input:focus-visible{ outline:2px solid #c4b5fd; outline-offset:2px; border-color:var(--ap-primary) }
+
+@media (max-width:420px){
+  .ap-flavor{ grid-template-columns:1fr; align-items:start }
+  .ap-qty{ justify-content:flex-start }
 }
 
-/* La barra de categorías también con más aire y centrada */
-.store .ap-pillbar{
-  display: flex;                 /* por si no lo tiene */
+/* ========= Accesibilidad (focus) ========= */
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline:none; box-shadow: var(--ring);
+}
+
+/* ===== Header un poco más grande (override) ===== */
+:root{
+  /* antes ~60–80px; ahora un toque más alto */
+  --header-h: clamp(88px, 10vw, 120px);
+}
+
+/* Logo más alto dentro del nuevo header */
+.ap-header__title img{
+  height: calc(var(--header-h) - 12px);
+  max-width: min(72vw, 520px);
+}
+
+/* Ajuste en teléfonos para que no apriete los botones */
+@media (max-width: 480px){
+  :root{ --header-h: clamp(78px, 16vw, 100px); }
+  .ap-header__title img{ max-width: 68vw; }
+}
+
+
+
+/* ================================
+   MENÚ HAMBURGUESA (Mobile Only)
+   ================================ */
+
+/* Botón hamburguesa (visible solo en mobile) */
+#openMenu{
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding-bottom: 10px;
-  margin-top: 6px;               /* separa del header */
-  flex-wrap: wrap;
+  gap: .5rem;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid #2a2f3f;
+  background: #151823;
+  color: #e7e9ef;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, transform .05s ease;
+}
+#openMenu:hover{ background:#1b1f2d; border-color:#3a4057; }
+#openMenu:active{ transform: translateY(1px); }
+#openMenu:focus-visible{ box-shadow: var(--ring); }
+
+/* Ocultar en desktop */
+@media (min-width: 1024px){
+  #openMenu{ display: none !important; }
 }
 
-/* Un poco más grande en desktop */
-@media (min-width: 980px){
-  .store #mainTitle{ font-size: 32px; margin-bottom: 10px; }
-  .store .ap-subtitle{ font-size: 16px; }
-  .store .ap-header .ap-brand{ padding-block: 26px; }
-}
-/* --- Espaciado título vs categorías --- */
-.ap-header .ap-headings h1{
-  margin: 0 0 10px;      /* separa el h1 de la línea siguiente */
-  line-height: 1.25;
-}
+/* =========================
+   Drawer lateral (izquierdo)
+   ========================= */
 
-.ap-header .ap-subtitle{
-  margin: 0;             /* sin margen extra abajo del subtítulo */
-}
-
-.ap-pillbar{
-  margin-top: 22px;      /* ¡más aire antes de las categorías! */
+/* Overlay + posicionamiento bajo el header */
+#menuDrawer.ap-drawer{
+  position: fixed !important;
+  top: var(--header-h, 88px) !important;     /* respeta la altura de tu header */
+  left: 0 !important; right: 0 !important; bottom: 0 !important;
+  z-index: 130 !important;
+  background: rgba(0,0,0,.45);               /* oscurece el fondo */
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  visibility: visible;
+  pointer-events: auto;
 }
 
-/* Un poco más de espacio en pantallas grandes */
-@media (min-width: 992px){
-  .ap-pillbar{ margin-top: 28px; }
+/* Oculto por defecto (el panel queda fuera de la vista a la izquierda) */
+#menuDrawer[aria-hidden="true"]{
+  visibility: hidden;
+  pointer-events: none;
+  background: transparent;
 }
 
-/* Si ocultaste el logo, dale aún más respiro */
-body.no-logo .ap-pillbar{
-  margin-top: 32px;
-}
-/* --- Promo bienvenida --- */
-.ap-promo-backdrop{
-  position:fixed; inset:0; display:none; place-items:center;
-  background:rgba(0,0,0,.5); z-index:9999;
-}
-.ap-promo-backdrop.show{ display:grid; }
-
-.ap-promo{
-  width:min(560px,92vw); background:#fff; color:#111;
-  border-radius:16px; padding:16px; border:1px solid #ececf3;
-  box-shadow:0 30px 70px rgba(0,0,0,.35);
+/* Panel del menú */
+#menuDrawer .ap-drawer__panel{
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: auto;
+  width: min(86vw, 360px);
+  background: var(--surface, #131316);
+  border-right: 1px solid #262a3d;
+  box-shadow: 20px 0 40px rgba(0,0,0,.35);
+  transform: translateX(-104%);
+  transition: transform .22s ease-out;
+  display: flex;
+  flex-direction: column;
 }
 
-.ap-promo-top{
-  display:flex; gap:16px; align-items:center;
+/* Al abrir: entra suavemente */
+#menuDrawer[aria-hidden="false"] .ap-drawer__panel{
+  transform: translateX(0);
 }
 
-/* LOGO MÁS GRANDE */
-.ap-promo-logo{
-  height: clamp(90px, 20vw, 120px);   /* << aumentá acá si lo querés aún más grande */
-  width:auto; object-fit:contain; flex-shrink:0;
-  filter: drop-shadow(0 8px 24px rgba(0,0,0,.15));
+/* Header del drawer */
+#menuDrawer .ap-drawer__header{
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .5rem;
+  padding: 12px 14px;
+  background: inherit;
+  border-bottom: 1px solid #262a3d;
+}
+#menuDrawer .ap-drawer__header h2{
+  margin: 0; font-size: 1rem; font-weight: 700;
 }
 
-.ap-promo h3{ margin:0; font-size:20px; color:var(--violeta); }
-.ap-promo-status{ margin:4px 0 0; font-size:13px; color:#555; }
+/* Botón cerrar (X) */
+#menuDrawer .ap-icon-btn{
+  background: #171a24;
+  border: 1px solid #2a2f3f;
+  color: #e7e9ef;
+  border-radius: 10px;
+  padding: .45rem .6rem;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, transform .05s ease;
+}
+#menuDrawer .ap-icon-btn:hover{ background:#1b1f2d; border-color:#3a4057; }
+#menuDrawer .ap-icon-btn:active{ transform: translateY(1px); }
+#menuDrawer .ap-icon-btn:focus-visible{ box-shadow: var(--ring); }
 
-.ap-promo-list{ margin:12px 0 0; padding-left:16px; }
-.ap-promo-list li{ margin:4px 0; font-size:14px; }
+/* Cuerpo (lista de enlaces) */
+#menuDrawer .ap-drawer__body{
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 12px 14px 18px;
+}
 
-.ap-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+/* Lista de enlaces del menú */
+.ap-menu-list{
+  display: grid; gap: .6rem;
+}
+.ap-menu-list a{
+  display: block;
+  text-decoration: none;
+  color: #e7e9ef;
+  padding: .7rem .85rem;
+  border-radius: 12px;
+  border: 1px solid #23283a;
+  background: #121521;
+  transition: background .15s ease, border-color .15s ease, transform .05s ease;
+}
+.ap-menu-list a:hover{
+  background: #181c2a;
+  border-color: #323a57;
+  transform: translateY(-1px);
+}
+.ap-menu-list a:focus-visible{ box-shadow: var(--ring); }
+
+/* Link Admin con acento mostaza */
+.ap-menu-admin{
+  background: linear-gradient(180deg, var(--brand, #eab308), var(--brand-2, #d97706));
+  border-color: transparent !important;
+  color: #fff !important;
+  font-weight: 700;
+}
+.ap-menu-admin:hover{
+  filter: saturate(1.04);
+  box-shadow: 0 10px 22px rgba(234,179,8,.26);
+}
+
+/* En desktop: ocultar totalmente el drawer móvil */
+@media (min-width: 1024px){
+  #menuDrawer{ display: none !important; }
+}
+
+/* En pantallas MUY bajas, dar más aire a los toques */
+@media (max-height: 560px){
+  #menuDrawer .ap-menu-list a{ padding: .6rem .75rem; }
+}
+
+/* Opcional: si querés que el overlay cierre al click fuera del panel,
+   en JS escuchá clicks en #menuDrawer (target === aside) y cerrá. */
+
+
+
+
+   /* ===== MENÚ HAMBURGUESA — subir el panel (más arriba) ===== */
+:root{
+  /* Altura real de tu header (ya la usás en otros bloques). Ajustá si querés. */
+  --ap-header-h: 64px;
+
+  /* Cuánto subir el menú por encima del borde inferior del header */
+  --menu-top-lift: 55px;   /* probá 0, 8, 12, 16 */
+}
+
+/* Overlay del menú: arranca casi a la altura del header, pero un toque más arriba */
+#menuDrawer.ap-drawer{
+  /* ANTES: top: var(--header-h, 88px); */
+  top: calc(var(--ap-header-h) - var(--menu-top-lift)) !important;
+}
+
+/* El panel interno ya está con top:0 dentro del overlay, no toques eso */
+
+
+
+
+/* ======= Admin UI (desktop + móvil) ======= */
+:root{
+  --ap-bg: #0b0f14;
+  --ap-panel: #0f141b;
+  --ap-elev: #141a22;
+  --ap-line: #222a35;
+  --ap-soft: #1b2430;
+  --ap-text: #e9eef6;
+  --ap-dim: #a7b1c2;
+  --ap-brand: #5cc8ff;
+  --ap-ok: #19c37d;
+  --ap-warn: #f59e0b;
+  --ap-bad: #f05252;
+  --ap-primary: #3ba0ff;
+}
+
+.ap-admin{
+  background: var(--ap-bg);
+  color: var(--ap-text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Topbar */
+.ap-topbar{
+  position: sticky; top: 0; z-index: 40;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: .75rem 1rem;
+  background: linear-gradient(0deg, rgba(10,14,20,.6), rgba(10,14,20,.9));
+  border-bottom: 1px solid var(--ap-line);
+  backdrop-filter: blur(6px);
+}
+.ap-brand{ margin:0; text-align:center; font-size:1.1rem; letter-spacing:.2px; }
+.ap-admin-link{ color: var(--ap-dim); text-decoration:none; }
+.ap-admin-link:hover{ color: var(--ap-text); }
+
+/* Container */
+.ap-admin__main{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.25rem;
+}
+.ap-admin__intro{
+  background: var(--ap-panel);
+  border: 1px solid var(--ap-line);
+  border-radius: 12px;
+  padding: .9rem 1rem;
+  color: var(--ap-dim);
+  margin-bottom: .9rem;
+}
+
+/* Toolbar */
+.ap-admin__toolbar{
+  position: sticky; top: 56px; z-index: 35;
+  display: flex; gap: .75rem; align-items: center; justify-content: space-between;
+  background: linear-gradient(180deg, rgba(20,26,34,.96), rgba(20,26,34,.92));
+  padding: .6rem;
+  border: 1px solid var(--ap-line);
+  border-radius: 12px;
+  margin-bottom: .6rem;
+  backdrop-filter: blur(6px);
+}
+.ap-toolbar__group{
+  display: grid; grid-template-columns: 220px minmax(280px, 46vw); gap: .6rem;
+}
+.ap-toolbar__actions{ display:flex; gap:.5rem; }
+
+.ap-input{
+  appearance: none;
+  background: var(--ap-elev);
+  border: 1px solid var(--ap-line);
+  color: var(--ap-text);
+  padding: .6rem .7rem;
+  border-radius: 10px;
+  outline: none;
+  width: 100%;
+}
+.ap-input::placeholder{ color: #7f8aa0; }
+
+/* Hint */
+.ap-admin__hint{
+  font-size: .92rem;
+  color: var(--ap-dim);
+  margin: .25rem .2rem .5rem;
+}
+
+/* Tabla */
+.ap-table-wrap{
+  background: var(--ap-panel);
+  border: 1px solid var(--ap-line);
+  border-radius: 12px;
+  overflow: auto;
+}
+.ap-table{
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 920px; /* deja scroll horizontal en móvil */
+}
+.ap-table thead th{
+  position: sticky; top: 0; z-index: 10;
+  background: linear-gradient(180deg, #17202b, #141a22);
+  color: var(--ap-dim);
+  text-align: left;
+  font-weight: 600;
+  font-size: .92rem;
+  letter-spacing:.1px;
+  padding: .7rem .8rem;
+  border-bottom: 1px solid var(--ap-line);
+}
+.ap-table tbody td{
+  padding: .65rem .8rem;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  vertical-align: middle;
+}
+.ap-table tbody tr:nth-child(even){ background: rgba(255,255,255,.015); }
+.ap-table tbody tr:hover{ background: rgba(91,167,255,.06); }
+
+/* Chips / badges */
+.ap-chip{
+  display:inline-block; padding:.22rem .5rem; border-radius:999px;
+  border:1px solid #2c3a4c; background:#111824; color:#bcd2f0; font-size:.78rem;
+}
+.ap-chip--warn{ border-color: #4a3816; background:#231b0a; color:#ffcc7a; }
+.ap-badge-ok{
+  background: #0f2a20; color:#96f1c7; border:1px solid #1d4c38;
+  padding:.22rem .5rem; border-radius:999px; font-size:.78rem;
+}
+.ap-badge-off{
+  background: #2a1212; color:#ffb3b3; border:1px solid #4a1e1e;
+  padding:.22rem .5rem; border-radius:999px; font-size:.78rem;
+}
+
+/* Botones */
+.ap-btn{
+  background: var(--ap-elev);
+  border:1px solid var(--ap-line);
+  color: var(--ap-text);
+  padding:.55rem .7rem;
+  border-radius: 10px;
+  cursor:pointer;
+  transition: transform .05s ease, background .15s;
+}
+.ap-btn:hover{ background: var(--ap-soft); }
+.ap-btn:active{ transform: translateY(1px); }
+.ap-btn--primary{
+  background: linear-gradient(180deg, #3ba0ff, #2c84db);
+  border-color: #1a5fbf;
+  color: white;
+}
+.ap-btn--ghost{
+  background: transparent; border-color: var(--ap-line); color: var(--ap-dim);
+}
+
+.ap-ico{ font-weight: 700; margin-right:.35rem; }
+
+/* Acciones en celda */
+.ap-actions{
+  display:flex; flex-wrap: wrap; gap:.4rem;
+}
+
+/* Mini thumb en tabla (ya lo arma app.js) */
+.ap-table img{ background:#0b0f14; }
+
+/* FAB móvil */
+.ap-fab{
+  position: fixed; right: 16px; bottom: 16px; z-index: 50;
+  width: 54px; height: 54px; border-radius: 999px;
+  display:grid; place-items:center;
+  background: linear-gradient(180deg, #3ba0ff, #2c84db);
+  color:#fff; border: none; box-shadow:0 12px 28px rgba(0,0,0,.35);
+}
+.ap-fab:active{ transform: translateY(1px); }
+
+/* ======= Responsive ======= */
+@media (max-width: 920px){
+  .ap-toolbar__group{
+    grid-template-columns: 1fr; /* filtros en 2 filas */
+  }
+  .ap-toolbar__actions{
+    position: sticky; right: 0;
+  }
+}
+
+@media (max-width: 640px){
+  .ap-topbar{ grid-template-columns: auto 1fr auto; }
+  .ap-brand{ font-size:1rem; }
+  .ap-admin__main{ padding: .9rem; }
+
+  .ap-admin__toolbar{
+    top: 52px;
+    padding: .55rem;
+  }
+
+  /* Botonera de acciones más cómoda */
+  .ap-actions .ap-btn{
+    flex: 1 1 48%;
+    text-align:center;
+    padding:.6rem .55rem;
+  }
+}
+.ap-btn--danger{ background: linear-gradient(180deg,#ef4444,#dc2626); border-color:#b91c1c; color:#fff; }
+.ap-btn[disabled]{ opacity:.55; cursor:not-allowed; }
+/* Solo el título del carrito (no afecta al menú hamburguesa) */
+#cartDrawer .ap-cart-title{
+  font-size: clamp(13px, 2.8vw, 16px);  /* más chico y fluido */
+  line-height: 1.1;
+  white-space: nowrap;                  /* una sola línea */
+  overflow: hidden;
+  text-overflow: ellipsis;              /* “…” si no entra */
+}
+
+/* En móviles muy chicos, todavía un pelín más pequeño */
+@media (max-width: 380px){
+  #cartDrawer .ap-cart-title{ font-size: 13px; }
+}
+/* Área de impresión: oculta en pantalla */
+#printArea{ display:none; }
+
+@media print{
+  /* oculto todo… */
+  body *{ visibility:hidden !important; }
+
+  /* …menos el área de impresión */
+  #printArea, #printArea *{ visibility:visible !important; }
+
+  /* MUY IMPORTANTE: mostrarla y ocupar la página */
+  #printArea{
+    display:block;           /* <-- esto faltaba */
+    position:fixed;
+    inset:0;
+    padding:8px;
+    background:#fff;
+    color:#000;
+  }
+
+  .print-ticket{ page-break-after:always; }
+  .print-sep{ border-top:1px dashed #000; margin:.4rem 0; }
+  .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  .small{ font-size:12px; }
+  pre{ font-size:13px; }
+}
+/* —— Ticket térmico 80 mm ————————————————————— */
+:root{
+  /* contenido un poquito más angosto que el papel para que no “toque” los bordes */
+  --ticket-content-width: 72mm; /* si querés más ancho probá 74–76mm */
+}
+
+@media print{
+  /* Ancho real del rollo (80 mm) y alto automático; sin márgenes del sistema */
+  @page{ size: 80mm auto; margin: 0; }
+
+  html, body{ margin: 0; padding: 0; }
+  /* Área donde AP inyecta las copias */
+  #printArea{ width: var(--ticket-content-width); margin: 0 auto; }
+
+  /* Cada comanda en “página” separada y sin cortes raros */
+  .print-ticket{
+    width: 100%;
+    page-break-inside: avoid;
+    page-break-after: always;
+  }
+  .print-ticket:last-child{ page-break-after: auto; }
+}
+
+.ap-size{ display:flex; gap:.5rem; margin-top:.5rem; }
+.ap-size-btn{
+  flex:1; border:1px solid #2b2b31; background:var(--surface-2); color:var(--text);
+  padding:.5rem .6rem; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:space-between;
+}
+.ap-size-btn small{ opacity:.85; }
+.ap-size-btn.active{
+  border-color: var(--brand-2);
+  box-shadow: 0 0 0 2px rgba(var(--brand-rgb), .15) inset;
+  background: linear-gradient(180deg, rgba(var(--brand-rgb), .10), transparent);
+}
+.ap-size-btn:disabled{ opacity:.45; cursor:not-allowed; }

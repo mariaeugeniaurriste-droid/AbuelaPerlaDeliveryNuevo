@@ -1,222 +1,465 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Abuela Perla · Pedidos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Open Graph / Facebook / WhatsApp -->
+<meta property="og:title" content="Abuela Perla — Menú" />
+<meta property="og:description" content="Elegí tu pedido y enviá por WhatsApp. Mié–Lun 19:00 a 00:00. Martes cerrado." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://TUDOMINIO/" />
+<meta property="og:image" content="https://TUDOMINIO/logo.png" />
+<meta property="og:image:alt" content="Abuela Perla" />
 
-  <!-- Tema y estilos -->
-  <meta name="theme-color" content="#5A2EA6">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Abuela Perla — Menú" />
+<meta name="twitter:description" content="Elegí tu pedido y enviá por WhatsApp." />
+<meta name="twitter:image" content="https://TUDOMINIO/logo.png" />
+
+  <title>Abuela Perla — Menú</title>
+
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- Favicon / Icons -->
-  <link rel="icon" href="assets/ap-32.png" sizes="32x32" />
-  <link rel="apple-touch-icon" href="assets/ap-192.png" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="shortcut icon" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+  <meta name="theme-color" content="#0b0d14">
 
-  <!-- Manifest PWA (solo uno) -->
-  <link rel="manifest" href="manifest-index.json" />
-
-  <!-- Loader pequeño -->
   <style>
-    .ap-loader{ text-align:center; padding:40px; font-size:15px; color:#5A2EA6; animation:blink 1.4s infinite both; }
-    @keyframes blink {0%{opacity:.2}20%{opacity:1}100%{opacity:.2}}
-    /* --- Promo bienvenida --- */
+    .ap-icon-btn{appearance:none;border:0;cursor:pointer;width:32px;height:32px;border-radius:999px;display:grid;place-items:center;font-size:16px;background:#161a24;color:#e7e9ef;border:1px solid #2a2f3f; box-shadow:0 2px 10px rgba(0,0,0,.25);transition:transform .12s ease, background .12s ease, border-color .12s ease, opacity .12s ease;}
+    .ap-icon-btn:hover{ background:#1b2030; border-color:#3a4057; transform:translateY(-1px); }
+    .ap-icon-btn:active{ transform:translateY(0); opacity:.9; }
 
+    .ap-header__actions{ display:flex; align-items:center; gap:.5rem; }
+    .ap-header__nav{ display:none; align-items:center; gap:.5rem; margin:0 auto; }
+    .ap-header__nav a{ text-decoration:none; color:#e7e9ef; opacity:.95; padding:.35rem .7rem; border:1px solid #2a2f3f; border-radius:999px; background:#151823; font-size:14px; white-space:nowrap; display:inline-flex; align-items:center; gap:.45rem;}
+    .ap-header__nav a:hover{ background:#1b1f2d; border-color:#3a4057; opacity:1; }
+    .ap-header__nav img{ width:16px; height:16px; object-fit:contain; vertical-align:-3px; }
+
+    /* Estado abierto/cerrado */
+    .ap-open-badge{ margin-left:.5rem; padding:.28rem .6rem; border-radius:999px; border:1px solid; font-weight:700; font-size:13px; white-space:nowrap; }
+    .ap-open{ background:#0f2a20; border-color:#1d4c38; color:#dcfce7; }
+    .ap-closed{ background:#2a1212; border-color:#4a1e1e; color:#fee2e2; }
+
+    .ap-hero-banner{ position: relative; width: min(1150px, 100%); margin: 10px auto 14px auto; min-height: clamp(200px, 32vw, 340px); border-radius: 16px; overflow: hidden; border: 1px solid #23283a; background: url("assets/bannerpizarra.png") center / cover no-repeat, #0e1118; display: grid; place-items: center; box-shadow: 0 10px 30px rgba(0,0,0,.28); }
+    .ap-hero-banner::after{ content:""; position:absolute; inset:0; background: radial-gradient(ellipse at center, rgba(0,0,0,.15), rgba(0,0,0,.55) 60%), linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.55)); pointer-events:none; }
+    .ap-hero__content{ position:relative; text-align:center; padding:1.1rem 1.25rem; color:#fff; max-width:920px; text-shadow:0 2px 14px rgba(0,0,0,.6); }
+    .ap-hero__content h1{ margin:0 0 .35rem; font-size:clamp(22px, 4.2vw, 40px); font-weight:800; letter-spacing:.2px; }
+    .ap-hero__content p{ margin:0; opacity:.98; font-size:clamp(14px, 1.55vw, 16px); line-height:1.35; text-wrap:balance; }
+
+    .ap-hero__img-mobile{ display:none; width:100%; height:auto; border-radius:16px; object-fit:cover; }
+    .ap-drawer--left .ap-drawer__panel{ left:0; right:auto; transform:translateX(-102%); }
+    .ap-drawer--left[aria-hidden="false"] .ap-drawer__panel{ transform:translateX(0); }
+
+    #openMenu.ap-burger-btn{ width:42px; height:42px; border-radius:999px; display:grid; place-items:center; padding:0; background:transparent !important; border:0 !important; box-shadow:none !important; color:transparent; }
+    .ap-burger{ position:relative; width:20px; height:14px; display:block; }
+    .ap-burger i{ position:absolute; left:0; right:0; height:2px; background:#e7e9ef; border-radius:2px; transition:transform .22s ease, opacity .22s ease, top .22s ease; }
+    .ap-burger i:nth-child(1){ top:0; } .ap-burger i:nth-child(2){ top:6px; } .ap-burger i:nth-child(3){ top:12px; }
+    #openMenu.is-open .ap-burger i:nth-child(1){ top:6px; transform:rotate(45deg); } #openMenu.is-open .ap-burger i:nth-child(2){ opacity:0; } #openMenu.is-open .ap-burger i:nth-child(3){ top:6px; transform:rotate(-45deg); }
+
+    #openCart{ background:transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important; display:flex; align-items:center; gap:.35rem; }
+    #openCart:hover{ transform:none; background:transparent; }
+    #cartCount{ display:inline-flex; min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:#f7b046; color:#0b0d14; font-weight:800; font-size:12px; line-height:18px; align-items:center; justify-content:center; border:0; }
+
+    .ap-copy-row{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+    .ap-copy-btn{ appearance:none; border:1px solid #2a2f3f; background:#141925; color:#e7e9ef; padding:.28rem .55rem; border-radius:10px; cursor:pointer; display:flex; align-items:center; gap:.4rem; transition:transform .12s ease, background .12s ease, border-color .12s ease; }
+    .ap-copy-btn:hover{ background:#192131; border-color:#3a4057; transform:translateY(-1px); }
+    .ap-copied{ font-size:.9rem; color:#7ee787; }
+
+    /* Drawer menu: íconos uniformes */
+    .ap-menu-list{ display:flex; flex-direction:column; gap:.35rem; }
+    .ap-menu-list a{
+      display:flex; align-items:center; gap:.6rem;
+      padding:.6rem .7rem; border-radius:12px;
+      text-decoration:none; color:#e7e9ef;
+      background:#151823; border:1px solid #2a2f3f;
+    }
+    .ap-menu-list a:hover{ background:#1b1f2d; border-color:#3a4057; }
+    .ap-menu-ico{
+      width:18px; height:18px; flex:0 0 18px;
+      object-fit:contain; display:block;
+      filter:none; /* por si alguna imagen trae sombra */
+    }
+
+    /* Botón flotante "Subir" */
+    #apScrollTop{
+      position:fixed; right:16px; bottom:16px; width:44px; height:44px; border-radius:999px;
+      display:grid; place-items:center; border:1px solid #2a2f3f; background:#151823; color:#e7e9ef;
+      box-shadow:0 10px 30px rgba(0,0,0,.3); cursor:pointer; opacity:0; pointer-events:none;
+      transition:opacity .15s ease, transform .15s ease;
+      z-index:100;
+    }
+    #apScrollTop.show{ opacity:1; pointer-events:auto; }
+    #apScrollTop:hover{ transform:translateY(-2px); }
+
+    @media (min-width: 1024px){
+      #openMenu{ display:none; }
+      .ap-header__nav{ display:flex; }
+    }
+    @media (max-width: 560px){
+      .ap-hero-banner{ background:none; min-height:unset; padding:0; }
+      .ap-hero-banner::after{ display:none; }
+      .ap-hero__content{ display:none; }
+      .ap-hero__img-mobile{ display:block; }
+    }
   </style>
+
+  <!-- kill SW en localhost -->
+  <script>
+  (function killSWInLocal(){
+    if (!('serviceWorker' in navigator)) return;
+    var isLocal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    if (!isLocal) return;
+    navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).catch(()=>{});
+    if (window.caches && caches.keys) { caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(()=>{}); }
+    navigator.serviceWorker.getRegistration && navigator.serviceWorker.getRegistration().then(reg=>{
+      try{ reg && reg.active && reg.active.postMessage({ type:'AP_KILL_ME' }); }catch(_){}
+    });
+  })();
+  </script>
 </head>
-<body class="store">
+<body>
   <header class="ap-header">
-    <div class="ap-wrap ap-brand">
-      <img src="assets/logo.png" alt="Abuela Perla" class="ap-logo">
-      <div class="ap-headings">
-        <h1 id="mainTitle">🍴 ¿Qué vas a pedir hoy?</h1>
-        <p class="ap-subtitle">Elegí lo que querés por categoría y cargalo al carrito.</p>
-      </div>
+    <div class="ap-header__title">
+      <img src="logo.png" alt="Logo Abuela Perla" />
     </div>
-    <div class="ap-wrap ap-pillbar" id="pillbar"></div>
+
+    <!-- NAV (Desktop): Contacto, Ubicación, Descargar -->
+    <nav class="ap-header__nav" aria-label="Navegación principal">
+      <a href="https://wa.me/5493434515370?text=hola%20tengo%20una%20consulta..." target="_blank" rel="noopener" title="WhatsApp">
+        <img src="assets/whatsapp.png" alt="" aria-hidden="true">Contacto
+      </a>
+      <a href="#ubicacion" title="Ver ubicación"> <img src="assets/ubicacion.png" alt="">Ubicación</a>
+      <a href="https://play.google.com/store/apps/details?id=com.manzanzani.abuela_perla" title="Descargar App">
+        <img src="assets/playstore.png" alt="" aria-hidden="true">Descargar app
+      </a>
+    </nav>
+
+    <div class="ap-header__actions">
+      <span id="apOpenBadge" class="ap-open-badge ap-closed" aria-live="polite">Cerrado</span>
+
+      <button id="openMenu" class="ap-btn ap-btn--pill ap-btn--ghost ap-burger-btn" aria-label="Abrir menú">
+        <span class="ap-burger"><i></i><i></i><i></i></span>
+      </button>
+
+      <button id="openCart" class="ap-btn ap-btn--pill" aria-label="Abrir carrito">
+        <img src="assets/carrito.png" alt="" style="width:18px;height:18px;object-fit:contain;vertical-align:-2px" />
+        <span id="cartCount">0</span>
+      </button>
+    </div>
   </header>
 
-  <div class="ap-wrap">
-    <main class="ap-main">
-      <section>
-        <div id="catalog" class="ap-grid">
-          <div class="ap-loader">Cargando catálogo…</div>
-        </div>
-      </section>
+  <main class="ap-container" id="top">
+    <section class="ap-hero-banner" aria-labelledby="hero-title">
+      <img
+        class="ap-hero__img-mobile"
+        src="assets/banner-celu-texto.png"
+        alt="¿Qué vas a comer hoy? Elegí una categoría, sumá productos y, cuando estés listo, abrí el carrito para enviar tu pedido por WhatsApp."
+        loading="eager" decoding="async">
+      <div class="ap-hero__content">
+        <h1 id="hero-title">¿Qué vas a comer hoy?</h1>
+        <p>Elegí una categoría, sumá productos con “Agregar” y enviá tu pedido por WhatsApp. ¡Súper fácil!</p>
+      </div>
+    </section>
 
-      <aside class="ap-cart">
-        <h2>🛒 Carrito</h2>
-        <ul id="cartList"></ul>
+    <nav id="categoryTabs" class="ap-tabs" aria-label="Categorías"></nav>
+    <section id="productList" class="ap-grid"></section>
 
-        <div class="ap-tot">
-          <div class="ap-line"><span>Total productos</span><strong id="sumProducts">$0</strong></div>
-          <div class="ap-line"><span>🛵 Envío</span><strong id="shipCost">$0</strong></div>
-          <div class="ap-line ap-grand"><span>Total</span><span id="grandTotal">$0</span></div>
-        </div>
+    <!-- Horarios -->
+    <section id="horarios" class="ap-card ap-card--section" style="margin-top:14px">
+      <h3>Horarios de atención de la Rotisería (Delivery)</h3>
+      <p style="opacity:.9">Miércoles a Lunes de <strong>19:00 a 00:00</strong>. <strong>Martes cerrado</strong>.</p>
+      <p style="opacity:.9; margin:.35rem 0 0">Domicilio: <strong>Esquina Colón y Dasso, Diamante, Entre Ríos</strong></p>
+    </section>
 
-        <div class="ap-sec">
-          <h3>🛵 Logistica</h3>
-          <div class="ap-row">
-            <label class="ap-chip"><input type="radio" name="delivery" value="retiro" checked> Retiro en local</label>
-            <label class="ap-chip"><input type="radio" name="delivery" value="envio"> Envío a domicilio</label>
+    <!-- Ubicación (Google Maps) -->
+    <section id="ubicacion" class="ap-card ap-card--section" style="margin-top:14px">
+      <h3>Ubicación</h3>
+      <div style="aspect-ratio: 4 / 3; max-width:100%; border-radius:12px; overflow:hidden; border:1px solid #23283a">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d16413.235973264225!2d-60.63813760000001!3d-32.062013!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1ses!2sar!4v1756271418027!5m2!1ses!2sar"
+          style="border:0;width:100%;height:100%;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </section>
+  </main>
+
+  <!-- Drawer Carrito (derecha) -->
+  <aside id="cartDrawer" class="ap-drawer" aria-hidden="true" aria-label="Carrito">
+    <div class="ap-drawer__panel">
+      <header class="ap-drawer__header">
+        <h2 class="ap-cart-title">Carrito de compras</h2>
+        <button id="keepShopping" class="ap-btn ap-btn--ghost ap-btn--sm">Seguir añadiendo</button>
+        <button id="closeCart" class="ap-icon-btn" aria-label="Cerrar">✕</button>
+      </header>
+
+      <div id="cartScroll" class="ap-drawer__body">
+        <div id="cartItems" class="ap-cart"></div>
+
+        <!-- Totales + Envío -->
+        <div class="ap-card ap-card--section">
+          <div class="ap-row ap-row--between">
+            <div>Subtotal</div>
+            <strong id="subtotal">$ 0</strong>
           </div>
 
-          <div id="deliveryFields" class="ap-hide">
-            <label class="ap-field"><span>Localidad</span>
-              <select id="selTown">
-                <option value="diamante">Diamante (+$500)</option>
-                <option value="strobel">Strobel (+$800)</option>
-              </select>
+          <label class="ap-label ap-label--loud" for="envioSelect">
+            Modalidad de envío
+            <span class="ap-hint">Elegí envío o retiro</span>
+          </label>
+          <select id="envioSelect" class="ap-select ap-select--loud" aria-label="Modalidad de envío">
+            <option value="" selected disabled>Seleccioná la modalidad…</option>
+            <option value="Diamante">Diamante</option>
+            <option value="Strobel">Strobel</option>
+            <option value="retiro">Retiro por el local</option>
+          </select>
+
+          <div class="ap-row ap-row--between ap-total">
+            <div>Total</div>
+            <strong id="total">$ 0</strong>
+          </div>
+        </div>
+
+        <!-- Checkout -->
+        <div class="ap-card ap-card--section">
+          <button id="checkoutBtn" class="ap-btn ap-btn--primary ap-btn--lg" disabled>Enviar pedido</button>
+
+          <form id="checkoutForm" hidden>
+            <h3>Datos del pedido</h3>
+
+            <div class="ap-grid-2">
+              <label class="ap-label">Nombre
+                <input name="nombre" placeholder="Ej: María" />
+              </label>
+              <label class="ap-label">Apellido
+                <input name="apellido" placeholder="Ej: Urriste" />
+              </label>
+              <label class="ap-label">Teléfono (WhatsApp)
+                <input name="telefono" type="tel" inputmode="tel" placeholder="Ej: 3435..." />
+              </label>
+
+              <label class="ap-label">Localidad
+                <select name="localidad" class="ap-select">
+                  <option value="">Seleccionar…</option>
+                  <option>Diamante</option>
+                  <option>Strobel</option>
+                </select>
+              </label>
+
+              <label class="ap-label">Domicilio (si envío)
+                <input name="domicilio" placeholder="Calle y número" />
+              </label>
+              <label class="ap-label">Referencia (si envío)
+                <input name="referencia" placeholder="Puerta negra, al lado de..." />
+              </label>
+            </div>
+
+            <h3>Método de pago</h3>
+            <div class="ap-radio-group">
+              <label class="ap-radio">
+                <input type="radio" name="pago" value="Efectivo" checked />
+                <span>Efectivo</span>
+              </label>
+              <label class="ap-radio">
+                <input type="radio" name="pago" value="Transferencia" />
+                <span>Transferencia</span>
+              </label>
+            </div>
+
+            <div id="transferInfo" class="ap-alert" hidden>
+              <div class="ap-copy-row">
+                <strong>Alias:</strong>
+                <code id="apAliasText">abuela.perla.mp</code>
+                <button type="button" class="ap-copy-btn" id="copyAlias" title="Copiar alias">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Copiar</span>
+                </button>
+                <span id="aliasCopied" class="ap-copied" hidden>¡Copiado!</span>
+              </div>
+              <div><strong>Titular:</strong> <span id="apTitular">Agustín Urriste</span></div>
+              <div><strong>Comprobantes (WhatsApp):</strong> <span id="apCompa">+54 9 3434 51-5370</span></div>
+            </div>
+
+            <h3>Observaciones</h3>
+            <label class="ap-label">Observaciones de la comida
+              <textarea name="obsComida" rows="2" placeholder="Ej: sin aderezo, empanadas: 3 carne/3 choclo..."></textarea>
             </label>
-            <label class="ap-field"><span>Apellido y nombre</span><input id="inpName" type="text" placeholder="Ej: Pérez María"></label>
-            <label class="ap-field"><span>Domicilio</span><input id="inpAddr" type="text" placeholder="Calle y número"></label>
-            <label class="ap-field"><span>Referencias (opcional)</span><textarea id="addrNotes" placeholder="Ej: casa con rejas negras"></textarea></label>
-          </div>
+            <label class="ap-label">Observaciones del domicilio
+              <textarea name="obsDomicilio" rows="2" placeholder="Casa con rejas, timbre no funciona…"></textarea>
+            </label>
 
-          <div id="pickupFields">
-            <label class="ap-field"><span>Apellido y nombre</span><input id="inpNamePickup" type="text" placeholder="Ej: Pérez María"></label>
-          </div>
+            <div class="ap-row ap-row--end ap-gap">
+              <button type="button" id="cancelCheckout" class="ap-btn ap-btn--ghost">Cancelar</button>
+              <button type="submit" class="ap-btn ap-btn--primary">Enviar pedido</button>
+            </div>
+          </form>
         </div>
-
-        <div class="ap-sec">
-          <h3>💳 Forma de  Pago</h3>
-          <div class="ap-row">
-            <label class="ap-chip"><input type="radio" name="pay" value="efectivo" checked> Efectivo</label>
-            <label class="ap-chip"><input type="radio" name="pay" value="transferencia"> Transferencia</label>
-          </div>
-          <div id="transferBox" class="ap-transfer ap-hide">
-            <p><b>Alias:</b> abuela.perla.mp</p>
-            <p><b>Titular:</b> Agustin Urriste</p>
-            <p>📲 Enviar comprobante por WhatsApp 3435004592</p>
-          </div>
-        </div>
-
-        <div class="ap-sec">
-          <h3>📝 Observaciones</h3>
-          <textarea id="orderNotes" placeholder="Ej: hamburguesa sin aderezo."></textarea>
-        </div>
-
-        <div id="alertBox" class="ap-alert ap-hide" role="alert" aria-live="polite"></div>
-
-        <div class="ap-sec ap-actions">
-          <button class="ap-btn ap-ghost" id="btnClear">Vaciar carrito</button>
-          <button class="ap-btn ap-primary" id="btnSend" disabled>Enviar por WhatsApp</button>
-        </div>
-      </aside>
-    </main>
-  </div>
-
-  <!-- Botón para actualizar PWA cuando haya nueva versión del SW -->
-  <button id="btnUpdate" hidden>Actualizar</button>
-
-  <!-- Tu lógica de tienda -->
-  <script src="app.js"></script>
-
-  <!-- Registro del Service Worker + flujo de actualización -->
-  <script>
-    (function(){
-      const btnUpdate = document.getElementById('btnUpdate');
-
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').then(reg => {
-          // Si ya hay un SW instalado y aparece uno nuevo, mostramos el botón
-          const showBtn = () => { if (btnUpdate) btnUpdate.hidden = false; };
-
-          // Si hay un worker "waiting" al cargar
-          if (reg.waiting && navigator.serviceWorker.controller) showBtn();
-
-          // Detectar nuevas versiones
-          reg.addEventListener('updatefound', () => {
-            const nw = reg.installing;
-            nw && nw.addEventListener('statechange', () => {
-              if (nw.state === 'installed' && navigator.serviceWorker.controller) showBtn();
-            });
-          });
-
-          // Click en “Actualizar”: pedir al SW activar ya la nueva versión
-          btnUpdate?.addEventListener('click', async () => {
-            (await navigator.serviceWorker.getRegistration())?.waiting?.postMessage({ type: 'SKIP_WAITING' });
-          });
-
-          // Cuando el nuevo SW toma control, recargamos para usar archivos actualizados
-          navigator.serviceWorker.addEventListener('controllerchange', () => {
-            window.location.reload();
-          });
-        }).catch(console.error);
-      }
-    })();
-  </script>
-  <!-- Promo de horarios / contacto -->
-<div id="promo" class="ap-promo-backdrop" role="dialog" aria-modal="true" aria-labelledby="promoTitle">
-  <div class="ap-promo">
-    <div class="ap-promo-top">
-      <img src="assets/logo.png" class="ap-promo-logo" alt="Abuela Perla">
-      <div>
-        <h3 id="promoTitle">Armá tu pedido en segundos</h3>
-        <p id="promoStatus" class="ap-promo-status">Mié a Lun • 19:00–00:00</p>
       </div>
     </div>
+  </aside>
 
-    <ul class="ap-promo-list">
-      <li><b>Días:</b> Miércoles a Lunes (Martes cerrado)</li>
-      <li><b>Horario:</b> 19:00 a 00:00 hs</li>
-      <li><b>WhatsApp:</b> <a href="https://wa.me/5493434515370" target="_blank" rel="noopener">343 451 5370</a></li>
-      <li><b>Teléfono fijo:</b> <a href="tel:343983135">343 983 135</a></li>
-      <li><b>Dirección:</b> Esquina Colón y Dasso - Diamante - Entre Ríos</li>
-    </ul>
+  <!-- Drawer Menú (izquierda, para móvil) -->
+  <aside id="menuDrawer" class="ap-drawer ap-drawer--left" aria-hidden="true" aria-label="Menú">
+    <div class="ap-drawer__panel">
+      <header class="ap-drawer__header">
+        <h2>Menú</h2>
+        <button id="closeMenu" class="ap-icon-btn" aria-label="Cerrar">✕</button>
+      </header>
 
-    <div class="ap-actions">
-      <button class="ap-btn ap-primary" id="promoClose">Cerrar</button>
+      <div class="ap-drawer__body">
+        <nav class="ap-menu-list">
+          <a href="#" id="menuHome">
+            <img src="assets/menu.png" alt="" class="ap-menu-ico">
+            <span>Carta de Productos</span>
+          </a>
+          <a href="#horarios">
+            <img src="assets/horario.png" alt="" class="ap-menu-ico">
+            <span>Horarios de Atención</span>
+          </a>
+          <a href="#ubicacion">
+            <img src="assets/ubicacion.png" alt="" class="ap-menu-ico">
+            <span>Ubicación</span>
+          </a>
+          <a href="https://wa.me/5493434515370?text=hola%20tengo%20una%20consulta..." target="_blank" rel="noopener">
+            <img src="assets/whatsapp.png" alt="" class="ap-menu-ico">
+            <span>WhatsApp +5493434515370</span>
+          </a>
+          <a href="tel:3434983135">
+            <img src="assets/fijo.png" alt="" class="ap-menu-ico">
+            <span>Teléfono 343 498 3135</span>
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=100063585817913&rdid=JLX6Ehm8rsHz6quk&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1J5ShRXuWX%2F#" target="_blank" rel="noopener">
+            <img src="assets/facebook.png" alt="" class="ap-menu-ico">
+            <span>Facebook</span>
+          </a>
+          <a href="https://www.instagram.com/panaderiaabuela?igsh=NW9lbHUxYjN5aWpl" target="_blank" rel="noopener">
+            <img src="assets/instagram.png" alt="" class="ap-menu-ico">
+            <span>Instagram</span>
+          </a>
+          <a href="https://play.google.com/store/apps/details?id=com.manzanzani.abuela_perla" target="_blank" rel="noopener">
+            <img src="assets/playstore.png" alt="" class="ap-menu-ico">
+            <span>Descargar app</span>
+          </a>
+        </nav>
+      </div>
     </div>
-  </div>
-</div>
+  </aside>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    if (typeof showPromo === 'function') showPromo();
-  });
-</script>
+  <!-- Template tarjeta de producto -->
+  <template id="productCardTpl">
+    <article class="ap-card ap-product">
+      <div class="ap-product__head">
+        <div class="ap-avatar">🍽️</div>
+        <div>
+          <h3 class="ap-card-title"></h3>
+          <p class="ap-card-desc"></p>
+        </div>
+      </div>
 
-<script>
-(function(){
-  const promo = document.getElementById('promo');
-  const btnClose = document.getElementById('promoClose');
-  let promoTimer;
+      <div class="ap-row ap-row--between ap-product__price">
+        <div class="ap-price">$ 0</div>
+        <div class="ap-qty">
+          <button class="ap-qty-btn" data-op="-">−</button>
+          <input class="ap-qty-input" value="1" inputmode="numeric" />
+          <button class="ap-qty-btn" data-op="+">+</button>
+        </div>
+      </div>
 
-  function openPromo(){
-    if (!promo) return;
-    promo.classList.add('show');
-    clearTimeout(promoTimer);
-    promoTimer = setTimeout(closePromo, 10000); // 10 segundos
-  }
+      <label class="ap-label ap-mt-2">Observación (opcional)
+        <input class="ap-notas-input" placeholder="Ej.: sin mayonesa, sin lechuga" />
+      </label>
 
-  function closePromo(){
-    if (!promo) return;
-    promo.classList.remove('show');
-    clearTimeout(promoTimer);
-  }
+      <button class="ap-btn ap-btn--block ap-btn--primary ap-mt-2 ap-add">Agregar</button>
+    </article>
+  </template>
 
-  // Cierre manual
-  btnClose?.addEventListener('click', closePromo);
-  // Cerrar al hacer clic fuera de la tarjeta
-  promo?.addEventListener('click', (e) => {
-    if (e.target === promo) closePromo();
-  });
-  // Cerrar con Esc
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closePromo();
-  });
+  <!-- Botón flotante "Subir" -->
+  <button id="apScrollTop" aria-label="Subir" title="Subir">▲</button>
 
-  // Abrir al cargar
-  window.addEventListener('load', openPromo);
-})();
-</script>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
-  }
-</script>
+  <!-- JS principal (cache-bust) -->
+  <script src="app.js?v=7" defer></script>
 
+  <!-- JS mínimo para menú/nav + extras -->
+  <script>
+    // Drawer & nav
+    const menuDrawer   = document.getElementById('menuDrawer');
+    const cartDrawer   = document.getElementById('cartDrawer');
+    const openMenuBtn  = document.getElementById('openMenu');
+    const closeMenuBtn = document.getElementById('closeMenu');
+    const keepShopBtn  = document.getElementById('keepShopping');
 
+    function drawerOpenMenu(){ menuDrawer.setAttribute('aria-hidden','false'); openMenuBtn.classList.add('is-open'); }
+    function drawerCloseMenu(){ menuDrawer.setAttribute('aria-hidden','true');  openMenuBtn.classList.remove('is-open'); }
+    function drawerOpenCart(){ cartDrawer.setAttribute('aria-hidden','false'); window.AP?.renderCart?.(); }
+    function drawerCloseCart(){ cartDrawer.setAttribute('aria-hidden','true'); }
+
+    openMenuBtn?.addEventListener('click', ()=>{ drawerCloseCart(); (menuDrawer.getAttribute('aria-hidden')==='true') ? drawerOpenMenu() : drawerCloseMenu(); });
+    closeMenuBtn?.addEventListener('click', drawerCloseMenu);
+    keepShopBtn?.addEventListener('click', ()=>{ drawerCloseCart(); });
+
+    const goHome = (ev)=>{ ev?.preventDefault(); drawerCloseMenu(); window.scrollTo({ top:0, behavior:'smooth' }); };
+    document.getElementById('menuHome')?.addEventListener('click', goHome);
+
+    // Habilitar/inhabilitar "Enviar pedido" según modalidad
+    const envioSelect = document.getElementById('envioSelect');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    function syncCheckoutBtn(){ if(checkoutBtn) checkoutBtn.disabled = !envioSelect.value; }
+    envioSelect?.addEventListener('change', syncCheckoutBtn);
+
+    // Copiar alias
+    document.getElementById('copyAlias')?.addEventListener('click', async ()=>{
+      const txt = document.getElementById('apAliasText')?.textContent?.trim() || '';
+      if (!txt) return;
+      try{
+        await navigator.clipboard.writeText(txt);
+        const ok = document.getElementById('aliasCopied');
+        if(ok){ ok.hidden = false; setTimeout(()=> ok.hidden = true, 1500); }
+      }catch(_){ alert('No se pudo copiar el alias.'); }
+    });
+
+    // Botón "Subir"
+    (function(){
+      const btn = document.getElementById('apScrollTop');
+      const onScroll = ()=> {
+        if (window.scrollY > 220) btn.classList.add('show'); else btn.classList.remove('show');
+      };
+      window.addEventListener('scroll', onScroll, { passive:true });
+      btn.addEventListener('click', ()=> window.scrollTo({ top:0, behavior:'smooth' }));
+      onScroll();
+    })();
+
+    // Estado abierto/cerrado (mié–lun 19:00–00:00, martes cerrado)
+    (function(){
+      const badge = document.getElementById('apOpenBadge');
+      if (!badge) return;
+      const now = new Date();
+      const day = now.getDay(); // 0 dom, 1 lun, 2 mar, 3 mié, 4 jue, 5 vie, 6 sáb
+      const openDays = [0,1,3,4,5,6]; // dom,lun,mié,jue,vie,sáb (martes = 2 cerrado)
+      const isOpenDay = openDays.includes(day);
+      const mins = now.getHours()*60 + now.getMinutes();
+      const openM = 19*60;          // 19:00
+      const closeM = 24*60;         // 00:00 del día siguiente
+      const isOpenTime = (mins >= openM && mins < closeM);
+      const open = isOpenDay && isOpenTime;
+
+      badge.textContent = open ? 'Estamos atendiendo' : 'Cerrado';
+      badge.classList.toggle('ap-open', open);
+      badge.classList.toggle('ap-closed', !open);
+      badge.title = 'Horario hoy: ' + (isOpenDay ? '19:00–00:00' : 'Cerrado');
+    })();
+  </script>
+
+  <!-- cinturón y tirantes: si el defer llegara tarde, arrancamos igual -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.AP && typeof window.AP.bootHome === 'function') {
+        window.AP.bootHome();
+      }
+    });
+  </script>
 </body>
 </html>
